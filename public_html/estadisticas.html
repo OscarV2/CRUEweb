@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <title>Estadisticas</title>
+        <link rel="icon" href="icons/ic_launcher2.png">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        <link rel="stylesheet" href="css/materialize.css">
+        <link rel="stylesheet" href="css/estilo.css">
+        <link rel="stylesheet" href="css/chartist.min.css">
+        <link href="https://fonts.googleapis.com/css?family=Alegreya" rel="stylesheet">
+
+
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAL8fCskYf-G2CQMljQ-GGaLrBa352EtVs" type="text/javascript"></script>
+        <!-- Custom Fonts -->
+        <!--link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"-->
+        <script src="https://www.gstatic.com/firebasejs/3.2.1/firebase.js"></script>
+        <script src="js/jquery.js"></script>
+        <script src="js/materialize.js"></script>
+        <script src="js/zingchart.min.js"></script>
+
+        <script>
+            
+            $(document).ready(function () {
+                $('.button-collapse').sideNav({
+                    menuWidth: 300, // Default is 240
+                    edge: 'right', // Choose the horizontal origin
+                    closeOnClick: true, // Closes side-nav on <a> clicks, useful for Angular/Meteor
+                    draggable: true // Choose whether you can drag to open on touch screens
+                }
+                         
+                );
+        
+      
+    $('.collapsible').collapsible();
+        
+        
+                var config = {
+                    apiKey: "AIzaSyAL8fCskYf-G2CQMljQ-GGaLrBa352EtVs",
+                    authDomain: "mi-ambulancia.firebaseapp.com",
+                    databaseURL: "https://mi-ambulancia.firebaseio.com",
+                    storageBucket: "mi-ambulancia.appspot.com"
+                };
+                firebase.initializeApp(config);
+
+                var ambulancias = firebase.database().ref("Ambulancias");
+                var pedidos = firebase.database().ref("Pedidos");
+                var chartData = {
+                    "type": "bar", // Specify your chart type here.
+                    "title": {
+                        "text": "Estadisticas por mes"
+                    },
+                    "plot":{
+                        "styles":["red","#ff6666","#ff99cc","#cc99ff","#6699ff","blue","#9988fc"]
+                    },
+                    "scale-x":{
+                        "labels":["Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre"]
+                    },
+                    "series": [// Insert your series data here.
+                        {"values": [35, 42, 67, 89,32,23, 76]}
+
+                    ]
+                };
+                var chartDataDias = {
+                    "type": "bar", // Specify your chart type here.
+                    "title": {
+                        "text": "Ultimos 7 días"
+                    },
+                    "plot":{
+                        "styles":["red","#ff6666","#ff99cc","#cc99ff","#6699ff","blue","#9988fc"]
+                    },
+                    "scale-x":{
+                        "labels":["Domingo","Lunes","Martes","Miercoles","Jueves","Viernes","Sabado"]
+                    },
+                    "series": [// Insert your series data here.
+                        {"values": [5, 2, 7, 5,2,3, 6]}
+
+                    ]
+                };
+                var chartDataSemanas = {
+                    "type": "bar", // Specify your chart type here.
+                    "title": {
+                        "text": "Estadisticas por Semanas"
+                    },
+                    "plot":{
+                        "styles":["red","#ff6666","#ff99cc","#cc99ff","#6699ff","blue","#9988fc"]
+                    },
+                    "scale-x":{
+                        "labels":["Sem1","Sem2","Sem3","Sem4","Sem5","Sem6","Sem7"]
+                    },
+                    "series": [// Insert your series data here.
+                        {"values": [15, 12, 17, 19,12,13, 16]}
+
+                    ]
+                };
+                zingchart.render({// Render Method[3]
+                    id: 'chartDiv',
+                    data: chartData,
+                    height: 400,
+                    width: "80%"
+                });
+                zingchart.render({// Render Method[3]
+                    id: 'chartSemanas',
+                    data: chartDataSemanas,
+                    height: 400,
+                    width: "80%"
+                });
+                zingchart.render({// Render Method[3]
+                    id: 'chartDias',
+                    data: chartDataDias,
+                    height: 400,
+                    width: "80%"
+                });
+            });
+
+
+        </script>
+    </head>
+    <body id="wrapper">
+
+        <ul id="slide-out" class="side-nav collection">
+            <li><div class="userView">
+                    <div class="background">
+                        <img id="fondo" alt="myavatar" src="imag/fondo1.jpg">
+                    </div>
+                    <a href="#"><img alt="" class="circle" src="imag/myavatar.png"></a>
+                    <a href="#"><span class="white-text name">Oscar Vega</span></a>
+                    <a href="#"><span class="white-text email">ing.odvega@gmail.com</span></a>
+                </div></li>
+            <li >
+                <a href="Inicio_right.html" class="waves-effect waves-light collection-item avatar">
+                    <img alt="Reportes" src="icons/icon_home.png" class="circle">
+                    <span class="title">Inicio</span>    
+                </a>
+
+            </li>
+
+            <li >
+                <a href="estadisticas.html" class="waves-effect waves-light collection-item avatar">
+                    <img alt="Reportes" src="icons/icon_estadistica.ico" class="circle">
+                    <span class="title">Estadísticas</span>    
+                </a>
+
+            </li>
+            <li>
+                <a href="consultas.html" class="waves-effect waves-light collection-item avatar">
+                    <img alt="Reportes" src="icons/icon_consulta.png" class="circle">
+                    <span class="title">Consultas</span>    
+                </a>
+            </li>
+            <!--li>
+                <a href="reportes.html" class="waves-effect waves-light collection-item avatar">
+                    <img alt="Reportes" src="icons/icon-reporte.png" class="circle">
+                    <span class="title">Reportes</span>    
+                </a>
+            </li-->
+
+
+            <li><div class="divider"></div></li>
+
+        </ul>
+
+        <div class="navbar-fixed">
+            <nav>
+                <div class="nav-wrapper">
+                    <a href="#!" class="brand-logo">CRUE Estadísticas </a>
+                    <ul class="right hide-on-med-and-down">
+                        <li><a class="waves-effect waves-light"><i class="material-icons left">notifications</i>Pedidos<span></span></a></li>
+                        <li><a class="waves-effect waves-light"><i class="material-icons left">person</i>Admin Crue</a></li>
+                        <li><a id="button"  href="#" data-activates="slide-out" class="button-collapse"><i class="material-icons">reorder</i>
+                            </a></li>
+
+                    </ul>
+                </div>
+            </nav>
+        </div> 
+          
+        <ul class="collapsible" data-collapsible="expandable">
+            <li>
+                <div class="collapsible-header"><img alt="" src="icons/icon_estadistica.ico">Ultimos 7 meses</div>
+      <div class="collapsible-body"><p id="chartDiv"></p></div>
+    </li>   
+    <li>
+                <div class="collapsible-header"><img alt="" src="icons/icon_estadistica.ico">Ultimas 7 semanas</div>
+                <div class="collapsible-body"><p id="chartSemanas" ></p></div>
+    </li>   
+    <li>
+                <div class="collapsible-header"><img alt="" src="icons/icon_estadistica.ico">Ultimos 7 dias</div>
+                <div class="collapsible-body"><p id="chartDias"></p></div>
+    </li>   
+        </ul>
+
+        <footer>
+
+        </footer>
+        <!--  AIzaSyAL8fCskYf-G2CQMljQ-GGaLrBa352EtVs -->
+    </body>
+</html>

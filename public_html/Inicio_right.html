@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <title>Inicio</title>
+        <link rel="icon" href="icons/ic_launcher2.png">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        <link rel="stylesheet" href="css/materialize.css">
+        <link rel="stylesheet" href="css/estilo.css">
+        <link href="https://fonts.googleapis.com/css?family=Alegreya" rel="stylesheet">
+
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAL8fCskYf-G2CQMljQ-GGaLrBa352EtVs" type="text/javascript"></script>
+        <!-- Custom Fonts -->
+
+        <script src="https://www.gstatic.com/firebasejs/3.2.1/firebase.js"></script>
+        <script src="js/jquery.js"></script>
+        <script src="js/materialize.js"></script>
+
+        <style type="text/css">
+
+            #googleMap { height: 500px;
+                         width: available;
+                         margin: 0px;
+            }
+        </style>
+        <script>
+            /////////////////Arrays/////////
+            var ArrayInfoWindowAmbu = [], ArrayInfoWindowPedidos = [];
+            var keys = [], markerArray = [];
+            var ArrayKeysPedidos = [], ArrayMarkersPedidos = [];
+            //////////////////////////////////////////////////
+            var map;
+            var markerPedido, markerAmbu;
+            var pedidoPositon, ambuPositon;
+            var keyPedido;
+            var latitud, longitud, latPedido, lngPedido;
+            var cont_pedidos = 0, cont = 0;
+            var ima = "icons/ambulance3.png";
+
+            var infowindowAmbu, infowindowPedido;
+            function getLocation() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(mostrarPosicion);
+                } else {
+                    alert("Este navegador no soporta servicios de geolocalizacion.");
+                }
+            }
+            function mostrarPosicion(position) {
+
+                var myPositon = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                var mapProp = {
+                    center: myPositon,
+                    zoom: 15,
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                };
+                map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
+
+
+            }
+
+            google.maps.event.addDomListener(window, 'load', getLocation());
+
+            $(document).ready(function () {
+                $('.button-collapse').sideNav({
+                    menuWidth: 300, // Default is 240
+                    edge: 'right', // Choose the horizontal origin
+                    closeOnClick: true, // Closes side-nav on <a> clicks, useful for Angular/Meteor
+                    draggable: true // Choose whether you can drag to open on touch screens
+                }
+                );
+
+                // Initialize Firebase
+                var config = {
+                    apiKey: "AIzaSyAL8fCskYf-G2CQMljQ-GGaLrBa352EtVs",
+                    authDomain: "mi-ambulancia.firebaseapp.com",
+                    databaseURL: "https://mi-ambulancia.firebaseio.com",
+                    storageBucket: "mi-ambulancia.appspot.com"
+                };
+                firebase.initializeApp(config);
+
+                var ambulancias = firebase.database().ref("Ambulancias");
+                var pedidos = firebase.database().ref("Pedidos");
+
+                ambulancias.on('child_added', function (datasnapshot) {
+
+                    latitud = datasnapshot.child("latitud").val();
+                    longitud = datasnapshot.child("longitud").val();
+
+                    ambuPositon = new google.maps.LatLng(latitud, longitud);
+                    markerAmbu = new google.maps.Marker({
+                        position: ambuPositon,
+                        map: map,
+                        icon: ima,
+                        title: "AMBU"
+                    });
+                    infowindowAmbu = new google.maps.InfoWindow({
+                        content: '<b>' + datasnapshot.key + '</b>'
+                    });
+
+                    keys[cont] = datasnapshot.key;
+                    markerArray[cont] = markerAmbu;
+
+                    ArrayInfoWindowAmbu[cont] = infowindowAmbu;
+
+                    markerArray[cont].addListener('click', function() {
+                        alert(ArrayInfoWindowAmbu[cont]);
+                      //  ArrayInfoWindowAmbu[cont].open(map, markerArray[cont]);
+                    });
+                    cont++;
+
+                });
+                ambulancias.on('child_changed', function (datasnapshot) {
+                    latitud = datasnapshot.child("latitud").val();
+                    longitud = datasnapshot.child("longitud").val();
+
+                    markerAmbu = markerArray[keys.indexOf(datasnapshot.key)];
+                    markerAmbu.setPosition(new google.maps.LatLng(latitud, longitud));
+
+                });
+                ambulancias.on('child_removed', function (datasnapshot) {
+                    var s = keys.indexOf(datasnapshot.key);
+                    markerAmbu = markerArray[s];
+                    markerAmbu.setMap(null);
+
+                    markerArray.splice(s, 1);
+                    keys.splice(s, 1);
+                    cont--;
+                });
+                pedidos.on('child_added', function (datasnapshot) {
+
+                    keyPedido = datasnapshot.key;
+
+                    latPedido = datasnapshot.child("latitud").val();
+                    lngPedido = datasnapshot.child("longitud").val();
+
+                    pedidoPositon = new google.maps.LatLng(latPedido, lngPedido);
+                    markerPedido = new google.maps.Marker({
+                        position: pedidoPositon,
+                        map: map,
+                        icon: "icons/user.png",
+                        title: "PEDIDO"
+                    });
+                    
+                    infowindowPedido = new google.maps.InfoWindow({
+                        content: '<b>' + datasnapshot.child("direccion").val() + '</b>' + '<br>' + 'Tipo: '+ datasnapshot.child("tipoEmergencia").val()
+                    });
+                    infowindowPedido.open(map, markerPedido);                  
+                    ArrayKeysPedidos[cont_pedidos]       = keyPedido;
+                    ArrayMarkersPedidos[cont_pedidos]    = markerPedido;
+                    ArrayInfoWindowPedidos[cont_pedidos] = infowindowPedido;
+                    
+                    
+                    
+                    cont_pedidos++;
+                    $("#notifications").html(cont_pedidos);
+                    $("#notifications").addClass("new badge");
+                });
+
+                pedidos.on('child_removed', function (datasnapshot) {
+                    markerPedido.setMap(null);
+                });
+                pedidos.on('child_changed', function (datasnapshot) {
+
+                });
+            });
+
+        </script>
+    </head>
+    <body id="wrapper">
+
+        <ul id="slide-out" class="side-nav collection">
+            <li><div class="userView">
+                    <div class="background">
+                        <img id="fondo" alt="myavatar" src="imag/fondo1.jpg">
+                    </div>
+                    <a href="#"><img alt="" class="circle" src="imag/myavatar.png"></a>
+                    <a href="#"><span class="white-text name">Oscar Vega</span></a>
+                    <a href="#"><span class="white-text email">ing.odvega@gmail.com</span></a>
+                </div></li>
+            <li >
+                <a href="#" class="waves-effect waves-light collection-item avatar">
+                    <img alt="Reportes" src="icons/icon_home.png" class="circle">
+                    <span class="title">Inicio</span>    
+                </a>
+
+            </li>
+
+            <li >
+                <a href="estadisticas.html" class="waves-effect waves-light collection-item avatar">
+                    <img alt="Reportes" src="icons/icon_estadistica.ico" class="circle">
+                    <span class="title">Estadísticas</span>    
+                </a>
+
+            </li>
+            <li>
+                <a href="consultas.html" class="waves-effect waves-light collection-item avatar">
+                    <img alt="Reportes" src="icons/icon_consulta.png" class="circle">
+                    <span class="title">Consultas</span>    
+                </a>
+            </li>
+            <!--li>
+                <a href="reportes.html" class="waves-effect waves-light collection-item avatar">
+                    <img alt="Reportes" src="icons/icon-reporte.png" class="circle">
+                    <span class="title">Reportes</span>    
+                </a>
+            </li-->
+
+            <li><div class="divider"></div></li>
+
+        </ul>
+
+        <div class="navbar-fixed">
+            <nav>
+                <div class="nav-wrapper">
+                    <a href="#!" class="brand-logo">CRUE Home</a>
+                    <ul class="right hide-on-med-and-down">
+                        <li><a class="waves-effect waves-light"><i class="material-icons left">notifications</i>Pedidos <span id="notifications"></span></a></li>
+                        <li><a class="waves-effect waves-light"><i class="material-icons left">person</i>Admin Crue</a></li>
+                        <li><a id="button"  href="#" data-activates="slide-out" class="button-collapse"><i class="material-icons">reorder</i>                            </a></li>
+                    </ul>
+                </div>
+            </nav>
+        </div> 
+        <!--    
+        <!--Fin de la parte Grafica principal-->
+        <div  id="maps" class="card-panel z-depth-2">
+            <div id="googleMap"></div>
+        </div>
+        <footer>
+
+        </footer>
+        <!--  AIzaSyAL8fCskYf-G2CQMljQ-GGaLrBa352EtVs -->
+    </body>
+</html>

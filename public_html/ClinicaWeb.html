@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, shrink-to-fit=no, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <title>Bienvenido</title>
+        <link rel="icon" href="icons/ic_launcher2.png">
+
+        <!-- Custom CSS -->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        <link rel="stylesheet" href="css/materializeClinica.css">
+        <link rel="stylesheet" type="text/css" href="style.css">
+        <script src="https://www.gstatic.com/firebasejs/3.2.1/firebase.js"></script>
+        <script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyAL8fCskYf-G2CQMljQ-GGaLrBa352EtVs" type="text/javascript"></script>
+
+        <script src="js/jquery.js"></script>
+        <script src="js/materialize.js"></script>
+        <script>
+
+            var lat_Ambulancia, lng_Ambulancia, IdAmbulancia = "hola", IdPaciente, ambulancia, pedido;
+            var ambuPosition, markerAmbu, markerClinica, map;
+            var ima = "icons/ambulance3.png";
+
+            var contentMarkerClinica = '<b>Clinica Santa Isabel</b>';
+            var infoWindowAmbu;
+            var infoWindow = new google.maps.InfoWindow({
+                content: contentMarkerClinica
+            });
+            function getLocation() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(showPosition);
+                } else {
+                    alert("Geolocation is not supported by this browser.");
+                }
+            }
+            function showPosition(position) {
+
+                var myPositon = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                var mapProp = {
+                    center: myPositon,
+                    zoom: 15,
+                    mapTypeId: google.maps.MapTypeId.ROADMAPs
+                };
+                map = new google.maps.Map(document.getElementById("map-canvas"), mapProp);
+                markerClinica = new google.maps.Marker({
+                    position: myPositon,
+                    map: map,
+                    icon: 'icons/marker_hospital.png',
+                    title: "AMBU"
+                });
+                infoWindow.open(map, markerClinica);
+                /*markerClinica.addListener('click', function (){
+                 infoWindow.open(map, markerClinica);                
+                 });*/
+            }
+
+            google.maps.event.addDomListener(window, 'load', getLocation());
+
+            $(document).ready(function () {
+                $(".button-collapse").sideNav();
+                $("#btnMostrarAmbulancia").attr("hidden", "hidden");
+
+            });
+            var config = {
+                apiKey: "AIzaSyAL8fCskYf-G2CQMljQ-GGaLrBa352EtVs",
+                authDomain: "mi-ambulancia.firebaseapp.com",
+                databaseURL: "https://mi-ambulancia.firebaseio.com",
+                storageBucket: "mi-ambulancia.appspot.com"
+            };
+            firebase.initializeApp(config);
+
+            var clinica = firebase.database().ref("Clinicas");
+            pedido = firebase.database().ref("Pedidos");
+            ambulancia = firebase.database().ref("Ambulancias");
+
+            clinica.on('child_added', function (datasnapshot) {
+
+                IdAmbulancia = datasnapshot.child("idAmbulancia").val();
+                mostrarAmbulancia();
+                //ambulancia = ambulancia.child(IdAmbulancia);
+                IdPaciente = datasnapshot.child("idPaciente").val();
+
+                pedido = firebase.database().ref("Pedidos").child(IdPaciente);
+                $("#notis_Pedidos").addClass("new badge");
+                $("#btnMostrarAmbulancia").attr("hidden", false);
+
+            });
+            function mostrarAmbulancia() {
+                //alert(IdAmbulancia);
+                ambulancia = firebase.database().ref("Ambulancias/" + IdAmbulancia);
+                ambulancia.on('value', function (snapshot) {
+                    lat_Ambulancia = snapshot.child("latitud").val();
+
+                    lng_Ambulancia = snapshot.child("longitud").val();
+                    ambuPositon = new google.maps.LatLng(lat_Ambulancia, lng_Ambulancia);
+                    markerAmbu = new google.maps.Marker({
+                        position: ambuPosition,
+                        map: map,
+                        icon: ima,
+                        title: "AMBU"
+                    });
+
+                    infoWindowAmbu = new google.maps.InfoWindow({
+                        content: '<b>' + IdAmbulancia + '</b>'
+                    });
+                    infoWindowAmbu.open(map, markerAmbu);
+                });
+            }
+
+            function mostrarFormularioSi() {
+                $("#logro").attr("hidden", "hidden");
+                $("#contenedor1").attr("hidden", "hidden");
+                $("#contenedor2").attr("hidden", "hidden");
+                $("#lista-formulario").attr("hidden", false);
+            }
+
+            function mostrarFormularioNo() {
+
+                $("#logro").attr("hidden", "hidden");
+                $("#contenedor1").attr("hidden", "hidden");
+                $("#contenedor2").attr("hidden", "hidden");
+
+                $("#listaFormNo").attr("hidden", false);
+            }
+
+            function enviarDatos() {}
+        </script>
+    </head>
+
+    <body>
+
+        <div class="navbar-fixed">
+            <nav>
+                <div class="nav-wrapper">
+
+                    <ul class="right hide-on-med-and-down">
+                        <li id="btnMostrarAmbulancia"  ><button  class="waves-effect btn" onclick="mostrarAmbulancia()">Mostrar</button></li>
+                        <li><a class="waves-effect waves-light"><i class="material-icons left">notifications</i>Pedidos<span id="notis_Pedidos" class="badge"></span></a></li>
+                        <li><a class="waves-effect waves-light"><i class="material-icons left">person</i></a></li>
+                        <li><a id="button"  href="#" class=""><i class="material-icons">reorder</i>
+                            </a></li>
+
+                    </ul>
+                </div>
+            </nav>
+        </div>
+        <form id="slide-out" class="side-nav fixed">
+
+            <h5 id="logro">Logró identificar al paciente?</h5>
+
+            <p id="contenedor1"><input class="with-gap" type="radio" name="identificar" id="test1" onclick="mostrarFormularioSi()">
+                <label for="test1">Si</label>
+            </p>
+            <p id="contenedor2"><input class="with-gap" type="radio" name="identificar" id="test2" onclick="mostrarFormularioNo()">
+                <label for="test2">No</label>
+            </p>
+
+            <section id="listaFormNo" class="input-field col s12" hidden="hidden">
+                <h4>Sexo</h4>
+                <input id="rad_no_Masculino" class="with-gap" type="radio" name="sexo"><label for="rad_si_Masculino">Masculino</label>
+                <input id="rad_no_Femenino" class="with-gap" type="radio" name="sexo"><label for="rad_si_Femenino">Femenino</label>
+                <h4>Edad</h4>
+                <select>
+                    <option value="" disabled selected>Escoja rango de edad</option>
+                    <option value="1">Option 1</option>
+                    <option value="2">Option 2</option>
+                    <option value="3">Option 3</option>
+                    <option value="4">Option 4</option>
+                    <option value="5">Option 5</option>
+                </select>
+
+                <a id="btnEnviarNo" class="waves-effect waves-light btn-large"><b>Enviar</b></a>
+            </section>
+
+            <ul id="lista-formulario" hidden="hidden">
+                <li>
+                    <h5>Por favor llene los campos necesarios y luego pulse Enviar</h5> 
+                </li>
+                <li><div class="userView">
+                        <div class="background">
+
+                        </div>
+
+                    </div></li>
+                <li>
+                    <input id="Nombres" type="text" placeholder="Nombres y Apellidos">
+                </li>
+                <li>
+                    <input id="Edad" type="text" placeholder="Edad">
+                </li>
+                <li>
+                    <input id="Identificacion" type="text" placeholder="Identificación">
+                </li>
+                <li><h4>Sexo</h4></li>
+                <li><input id="rad_si_Masculino" class="with-gap" type="radio" name="sexo"><label for="rad_si_Masculino">Masculino</label>
+                    <input id="rad_si_Femenino" class="with-gap" type="radio" name="sexo"><label for="rad_si_Femenino">Femenino</label>
+                </li>
+
+                <li><textarea id="observacionesFormSi" class="materialize-textarea">
+                        
+                    </textarea>
+                    <label for="observacionesFormSi">Observaciones...</label>
+                </li>                                  
+                <li>
+                    <a id="btnEnviar" class="waves-effect waves-light btn-large"><b>Enviar</b></a>
+
+                </li>
+            </ul>    
+        </form>
+
+        <p id="map-canvas"></p>                
+
+        <footer>
+
+        </footer>
+
+
+    </body>
+
+</html>
