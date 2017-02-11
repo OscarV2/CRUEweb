@@ -85,7 +85,8 @@
 
                 var ambulancias = firebase.database().ref("Ambulancias");
                 var pedidos = firebase.database().ref("Pedidos");
-
+                var traslados = firebase.database().ref('Traslados'); 
+                
                 ambulancias.on('child_added', function (datasnapshot) {
 
                     latitud = datasnapshot.child("latitud").val();
@@ -166,6 +167,10 @@
                 });
                 pedidos.on('child_changed', function (datasnapshot) {
 
+                });
+                traslados.on('child_added', function (datasnapshot) {
+                    // Llego nuevo traslado de clinica
+                    alert("NUEVO TRASLADO EXITOSO");
                 });
             });
 

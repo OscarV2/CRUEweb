@@ -129,7 +129,19 @@
                 $("#listaFormNo").attr("hidden", false);
             }
 
-            function enviarDatos() {}
+            function enviarDatos() {
+                var datosForm = {"Identificacion": $("#Identificacion").val()
+                    , "Edad": $("#Edad").val()
+                    , "Sexo": $('input[name=sexo]:checked').val()
+                    , "Nombres": $("#Nombres").val()
+                    , "Observaciones": $("#observacionesFormSi").val()
+                };
+                firebase.database().ref('Traslados').set(datosForm);
+                
+
+                //Crear Nuevo objeto "Traslado" en firebase 
+
+            }
         </script>
     </head>
 
@@ -192,14 +204,14 @@
                     <input id="Nombres" type="text" placeholder="Nombres y Apellidos">
                 </li>
                 <li>
-                    <input id="Edad" type="text" placeholder="Edad">
+                    <input id="Edad" type="number" placeholder="Edad">
                 </li>
                 <li>
                     <input id="Identificacion" type="text" placeholder="Identificación">
                 </li>
                 <li><h4>Sexo</h4></li>
-                <li><input id="rad_si_Masculino" class="with-gap" type="radio" name="sexo"><label for="rad_si_Masculino">Masculino</label>
-                    <input id="rad_si_Femenino" class="with-gap" type="radio" name="sexo"><label for="rad_si_Femenino">Femenino</label>
+                <li><input id="rad_si_Masculino" class="with-gap" type="radio" name="sexo" value="Masculino"><label for="rad_si_Masculino">Masculino</label>
+                    <input id="rad_si_Femenino" class="with-gap" type="radio" name="sexo" value="Femenino"><label for="rad_si_Femenino">Femenino</label>
                 </li>
 
                 <li><textarea id="observacionesFormSi" class="materialize-textarea">
@@ -208,7 +220,7 @@
                     <label for="observacionesFormSi">Observaciones...</label>
                 </li>                                  
                 <li>
-                    <a id="btnEnviar" class="waves-effect waves-light btn-large"><b>Enviar</b></a>
+                    <a id="btnEnviar" class="waves-effect waves-light btn-large" onclick="enviarDatos()"><b>Enviar</b></a>
 
                 </li>
             </ul>    
