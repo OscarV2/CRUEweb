@@ -22,40 +22,27 @@
         <script src="js/materialize.js"></script>
 
         <script>
-            function getRequest() {
-                $.get("http://190.109.185.138:8013/api/Paramedicos", function (respuesta) {                    
-                    alert(respuesta[3].Cedula);
-                    
-                    $("#titulo_card1").html(respuesta[1].Nombres + " "+ respuesta[1].Apellidos);
-                    $("#cedula1").html("Cedula: "+respuesta[1].Cedula );
-                    $("#correo1").html("Correo: "+respuesta[1].Correo );
-                    
-                    $("#titulo_card2").html(respuesta[2].Nombres + " "+ respuesta[2].Apellidos);
-                    $("#cedula2").html("Cedula: "+respuesta[2].Cedula );
-                    $("#correo2").html("Correo: "+respuesta[2].Correo );
-                    
-                    $("#titulo_card3").html(respuesta[3].Nombres + " "+ respuesta[3].Apellidos);
-                    $("#cedula3").html("Cedula: "+respuesta[3].Cedula );
-                    $("#correo3").html("Correo: "+respuesta[3].Correo );
-                    
-                    $("#titulo_card4").html(respuesta[4].Nombres + " "+ respuesta[4].Apellidos);
-                    $("#cedula4").html("Cedula: "+respuesta[4].Cedula );
-                    $("#correo4").html("Correo: "+respuesta[4].Correo );
-                    
-                    $("#titulo_card5").html(respuesta[9].Nombres + " "+ respuesta[9].Apellidos);
-                    $("#cedula5").html("Cedula: "+respuesta[9].Cedula );
-                    $("#correo5").html("Correo: "+respuesta[9].Correo );
-                    
-                    $("#titulo_card6").html(respuesta[8].Nombres + " "+ respuesta[8].Apellidos);
-                    $("#cedula6").html("Cedula: "+respuesta[8].Cedula );
-                    $("#correo6").html("Correo: "+respuesta[8].Correo );
-                    
-                    $("#titulo_card7").html(respuesta[0].Nombres + " "+ respuesta[0].Apellidos);
-                    $("#cedula7").html("Cedula: "+respuesta[0].Cedula );
-                    $("#correo7").html("Correo: "+respuesta[0].Correo );
-                    
-                });
-            }
+            var config = {
+                apiKey: "AIzaSyAL8fCskYf-G2CQMljQ-GGaLrBa352EtVs",
+                authDomain: "mi-ambulancia.firebaseapp.com",
+                databaseURL: "https://mi-ambulancia.firebaseio.com",
+                storageBucket: "mi-ambulancia.appspot.com"
+            };
+            firebase.initializeApp(config);
+
+            var ambulancias = firebase.database().ref("Ambulancias");
+            var pedidos = firebase.database().ref("Pedidos");
+            var registros = firebase.database().ref("RegistrosAmbulancias");
+            var cont = 1;
+            registros.on('child_added', function (datasnapshot) {
+
+                console.log(datasnapshot.child('nombres').val());
+                $("#titulo_card" + cont).append(datasnapshot.child('nombres').val() + '<br>' + datasnapshot.child('apellidos').val());
+                $("#cedula" + cont).append(datasnapshot.child('cedula').val());
+                $("#correo" + cont).append(datasnapshot.child('correo').val());
+                $("#enlace" + cont).append("Servicios: " + datasnapshot.child('NumServicios').val());
+                cont++;
+            });
 
             $(document).ready(function () {
                 $('.button-collapse').sideNav({
@@ -65,20 +52,42 @@
                     draggable: true // Choose whether you can drag to open on touch screens
                 }
                 );
-                var config = {
-                    apiKey: "AIzaSyAL8fCskYf-G2CQMljQ-GGaLrBa352EtVs",
-                    authDomain: "mi-ambulancia.firebaseapp.com",
-                    databaseURL: "https://mi-ambulancia.firebaseio.com",
-                    storageBucket: "mi-ambulancia.appspot.com"
-                };
-                firebase.initializeApp(config);
 
-                var ambulancias = firebase.database().ref("Ambulancias");
-                var pedidos = firebase.database().ref("Pedidos");
-                
-                
-                getRequest();
             });
+
+            function volver() {
+                $("#sectionParamedicos").attr('hidden', false);
+                $("#tablaServicios").attr('hidden', true);
+            }
+
+            function verTodos() {
+                if ($("#cuerpoTabla").is(":empty")) {
+                    
+                    pedidos.on('child_added', function (data) {
+                        $("#cuerpoTabla").append('<tr><td>' + data.child('fecha').val() + '</td>' + '<td>' + data.child('direccion').val() + '</td>' +
+                                '<td>' + data.child('tipoEmergencia').val() + '</td>' +
+                                '<td>' + data.child('numeroPacientes').val() + '</td>' +
+                                '<td>' + data.child('idAmbulancia').val() + '</td>' +
+                                ' </tr>');
+                    });
+                    $("#sectionParamedicos").attr('hidden', true);
+                    $("#tablaServicios").attr('hidden', false);
+
+                } else {
+                    
+                    $("#sectionParamedicos").attr('hidden', true);
+                    $("#tablaServicios").attr('hidden', false);
+                }
+
+
+
+
+
+
+            }
+
+
+
 
         </script>
 
@@ -134,7 +143,7 @@
                 <div class="nav-wrapper">
                     <a href="#!" class="brand-logo">Consultas</a>
                     <ul class="right hide-on-med-and-down">
-                        <li><a class="waves-effect waves-light"><i class="material-icons left">notifications</i>Pedidos<span></span></a></li>
+                        <li onclick="verTodos()"><a class="waves-effect waves-light"><i class="material-icons left">remove_red_eye</i>Ver Todos<span></span></a></li>
                         <li><a class="waves-effect waves-light"><i class="material-icons left">person</i>Admin Crue</a></li>
                         <li><a id="button"  href="#" data-activates="slide-out" class="button-collapse"><i class="material-icons">reorder</i>
                             </a></li>
@@ -143,117 +152,87 @@
                 </div>
             </nav>
         </div> 
+        <section id="sectionParamedicos">
+            <h2 id="tituloConsultas">Paramedicos registrados</h2>
+            <div class="container">
+                <div class="row valign-wrapper">
+                    <div class="col  valign">
+                        <div class="card">
+                            <div class="card-image">
+                                <img alt="" src="imag/paramedico1.jpg">
+                                <span id="titulo_card2" class="card-title"></span>
+                            </div>
+                            <div class="card-content">
+                                <p id="cedula2">Cedula: </p>
+                                <p id="correo2">Correo: </p>                                                
+                            </div>
+                            <div class="card-action">
+                                <a id="enlace2" href="#"></a>
+                            </div>
 
-        <input id="btnGet"  type="submit" class="btn-large" onclick="getRequest()" value="Consultar">
-        <div class="row">
-            <div class="col s12 m3">
-                <div class="card">
-                    <div class="card-image">
-                        <img alt="" src="imag/cruz_roja.jpg">
-                        <span id="titulo_card1" class="card-title"></span>
-                    </div>
-                    <div class="card-content">
-                        <p id="cedula1"></p>
-                        <p id="correo1"></p>                                                
-                    </div>
-                    <div class="card-action">
-                        <a href="#">Ver</a>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col s12 m3">
-                <div class="card">
-                    <div class="card-image">
-                        <img alt="" src="imag/cruz_roja.jpg">
-                        <span id="titulo_card2" class="card-title"></span>
-                    </div>
-                    <div class="card-content">
-                        <p id="cedula2"></p>
-                        <p id="correo2"></p>                                                
-                    </div>
-                    <div class="card-action">
-                        <a href="#">Ver</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col s12 m3">
-                <div class="card">
-                    <div class="card-image">
-                        <img alt="" src="imag/cruz_roja.jpg">
-                        <span id="titulo_card3" class="card-title"></span>
-                    </div>
-                    <div class="card-content">
-                        <p id="cedula3"></p>
-                        <p id="correo3"></p>                                                
-                    </div>
-                    <div class="card-action">
-                        <a href="#">Ver</a>
+                <div class="row valign-wrapper">
+                    <div class="col  valign">
+                        <div class="card">
+                            <div class="card-image">
+                                <img alt="" src="imag/paramedico2.jpg">
+                                <span id="titulo_card1" class="card-title"></span>
+                            </div>
+                            <div class="card-content">
+                                <p id="cedula1">Cedula: </p>
+                                <p id="correo1">Correo: </p>                                                
+                            </div>
+                            <div class="card-action">
+                                <a id="enlace1" href="#"></a>
+                            </div>
+
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col s12 m3">
-                <div class="card">
-                    <div class="card-image">
-                        <img alt="" src="imag/cruz_roja.jpg">
-                        <span id="titulo_card4" class="card-title"></span>
-                    </div>
-                    <div class="card-content">
-                        <p id="cedula4"></p>
-                        <p id="correo4"></p>                                                
-                    </div>
-                    <div class="card-action">
-                        <a href="#">Ver</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col s12 m3">
-                <div class="card">
-                    <div class="card-image">
-                        <img alt="" src="imag/cruz_roja.jpg">
-                        <span id="titulo_card5" class="card-title"></span>
-                    </div>
-                    <div class="card-content">
-                        <p id="cedula5"></p>
-                        <p id="correo5"></p>                                                
-                    </div>
-                    <div class="card-action">
-                        <a href="#">Ver</a>
+                <div class="row valign-wrapper">
+                    <div class="col  valign">
+                        <div class="card">
+                            <div class="card-image">
+                                <img alt="" src="imag/paramedico3.jpg">
+                                <span id="titulo_card3" class="card-title"></span>
+                            </div>
+                            <div class="card-content">
+                                <p id="cedula3">Cedula: </p>
+                                <p id="correo3">Correo: </p>                                                
+                            </div>
+                            <div class="card-action">
+                                <a id="enlace3" href="#"></a>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col s12 m3">
-                <div class="card">
-                    <div class="card-image">
-                        <img alt="" src="imag/cruz_roja.jpg">
-                        <span id="titulo_card6" class="card-title"></span>
-                    </div>
-                    <div class="card-content">
-                        <p id="cedula6"></p>
-                        <p id="correo6"></p>                                                
-                    </div>
-                    <div class="card-action">
-                        <a href="#">Ver</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col s12 m3">
-                <div class="card">
-                    <div class="card-image">
-                        <img alt="" src="imag/cruz_roja.jpg">
-                        <span id="titulo_card7" class="card-title"></span>
-                    </div>
-                    <div class="card-content">
-                        <p id="cedula7"></p>
-                        <p id="correo7"></p>                                                
-                    </div>
-                    <div class="card-action">
-                        <a href="#">Ver</a>
-                    </div>
-                </div>
-            </div>
-            
-            
-        </div>
+            </div> 
+
+
+        </section>
+
+        <section id="tablaServicios" hidden>
+            <h2 id="tituloTabla">Servicios</h2>
+            <table class="striped centered">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Direccion</th>
+                        <th>Tipo</th>
+                        <th>Pacientes</th>
+                        <th>Atendido por</th>
+
+                    </tr>
+                </thead>
+
+                <tbody id="cuerpoTabla"></tbody>
+            </table>
+            <a id="btnVolver" class="waves-effect waves-light btn" onclick="volver()"><i class="material-icons left">arrow_back</i>Volver</a>
+
+        </section>        
+
 
 
         <!--MODALS  -->
