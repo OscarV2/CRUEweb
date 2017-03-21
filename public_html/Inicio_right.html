@@ -21,7 +21,9 @@
         <script src="js/materialize.js"></script>
         <script src="js/funciones.js"></script>
         <style type="text/css">
-
+            h4{
+                text-align: center;
+            }
             #googleMap { height: 500px;
                          width: available;
                          margin: 0px;
@@ -41,31 +43,149 @@
             var cont_pedidos = 0, cont = 0;
             var ima = "icons/ambulance3.png";
 
+
+
             var infowindowAmbu, infowindowPedido;
             google.maps.event.addDomListener(window, 'load', localizar());
-            function localizar(){
+            function localizar() {
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(mostrarPosicion);
-                     
+
                 } else {
                     alert("Este navegador no soporta servicios de geolocalizacion.");
                 }
             }
-            
-function mostrarPosicion(position) {
+
+            function mostrarPosicion(position) {
 
                 var myPositon = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
                 var mapProp = {
                     center: myPositon,
                     zoom: 15,
                     mapTypeId: google.maps.MapTypeId.ROADMAP
-                };               
-            
-            map = new google.maps.Map(document.getElementById("googleMap"), mapProp);    
-            }
-            
-                        
+                };
 
+                map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
+            }
+
+// Initialize Firebase
+            var config = {
+                apiKey: "AIzaSyAL8fCskYf-G2CQMljQ-GGaLrBa352EtVs",
+                authDomain: "mi-ambulancia.firebaseapp.com",
+                databaseURL: "https://mi-ambulancia.firebaseio.com",
+                storageBucket: "mi-ambulancia.appspot.com"
+            };
+            firebase.initializeApp(config);
+
+            var ambulancias = firebase.database().ref("Ambulancias");
+            var pedidos = firebase.database().ref("Pedidos");
+            var traslados = firebase.database().ref('Traslados');
+
+            ambulancias.on('child_added', function (datasnapshot) {
+
+                latitud = datasnapshot.child("latitud").val();
+                longitud = datasnapshot.child("longitud").val();
+
+                ambuPositon = new google.maps.LatLng(latitud, longitud);
+                markerAmbu = new google.maps.Marker({
+                    position: ambuPositon,
+                    map: map,
+                    icon: ima,
+                    title: "AMBU"
+                });
+                infowindowAmbu = new google.maps.InfoWindow({
+                    content: '<b>' + datasnapshot.key + '</b>'
+                });
+
+                keys[cont] = datasnapshot.key;
+                markerArray[cont] = markerAmbu;
+
+                ArrayInfoWindowAmbu[cont] = infowindowAmbu;
+
+                markerArray[cont].addListener('click', function () {
+                    alert(ArrayInfoWindowAmbu[cont]);
+                    //  ArrayInfoWindowAmbu[cont].open(map, markerArray[cont]);
+                });
+                cont++;
+
+            });
+            ambulancias.on('child_changed', function (datasnapshot) {
+                latitud = datasnapshot.child("latitud").val();
+                longitud = datasnapshot.child("longitud").val();
+
+                markerAmbu = markerArray[keys.indexOf(datasnapshot.key)];
+                markerAmbu.setPosition(new google.maps.LatLng(latitud, longitud));
+
+            });
+            ambulancias.on('child_removed', function (datasnapshot) {
+                var s = keys.indexOf(datasnapshot.key);
+                markerAmbu = markerArray[s];
+                markerAmbu.setMap(null);
+
+                markerArray.splice(s, 1);
+                keys.splice(s, 1);
+                cont--;
+            });
+            pedidos.on('child_added', function (datasnapshot) {
+
+                keyPedido = datasnapshot.key;
+
+                latPedido = datasnapshot.child("latitud").val();
+                lngPedido = datasnapshot.child("longitud").val();
+
+                pedidoPositon = new google.maps.LatLng(latPedido, lngPedido);
+                markerPedido = new google.maps.Marker({
+                    position: pedidoPositon,
+                    map: map,
+                    icon: "icons/user.png",
+                    title: "PEDIDO"
+                });
+
+                infowindowPedido = new google.maps.InfoWindow({
+                    content: '<b>' + datasnapshot.child("direccion").val() + '</b>' + '<br>' + 'Tipo: ' + datasnapshot.child("tipoEmergencia").val()
+                });
+                infowindowPedido.open(map, markerPedido);
+                ArrayKeysPedidos[cont_pedidos] = keyPedido;
+                ArrayMarkersPedidos[cont_pedidos] = markerPedido;
+                ArrayInfoWindowPedidos[cont_pedidos] = infowindowPedido;
+
+
+
+                cont_pedidos++;
+                $("#notifications").html(cont_pedidos);
+                $("#notifications").addClass("new badge");
+            });
+
+            pedidos.on('child_removed', function (datasnapshot) {
+                markerPedido.setMap(null);
+            });
+            pedidos.on('child_changed', function (datasnapshot) {
+
+            });
+            traslados.on('child_added', function (datasnapshot) {
+                // Llego nuevo traslado de clinica
+                alert("NUEVO TRASLADO EXITOSO");
+            });
+
+            function limpiarMapa() {
+                for (var i = 0; i < ArrayMarkersPedidos.length; i++) {
+                    ArrayMarkersPedidos[i].setMap(null);
+                }
+                //Limpiar arrays
+                ////Limpiar arrays marcadores                       
+
+                ArrayMarkersPedidos = [];
+
+                ////Limpiar arrays keys
+                ArrayKeysPedidos = [];
+                ////Limpiar arrays Infowindows
+                ArrayInfoWindowPedidos = [];
+                //reiniciar contador
+                cont_pedidos = 0;
+                //Limpia las notificaciones
+                $("#notifications").html("");
+                $("#notifications").attr('class', 'badge');
+            }
             $(document).ready(function () {
                 $('.button-collapse').sideNav({
                     menuWidth: 300, // Default is 240
@@ -74,106 +194,8 @@ function mostrarPosicion(position) {
                     draggable: true // Choose whether you can drag to open on touch screens
                 }
                 );
-        
 
-                // Initialize Firebase
-                var config = {
-                    apiKey: "AIzaSyAL8fCskYf-G2CQMljQ-GGaLrBa352EtVs",
-                    authDomain: "mi-ambulancia.firebaseapp.com",
-                    databaseURL: "https://mi-ambulancia.firebaseio.com",
-                    storageBucket: "mi-ambulancia.appspot.com"
-                };
-                firebase.initializeApp(config);
 
-                var ambulancias = firebase.database().ref("Ambulancias");
-                var pedidos = firebase.database().ref("Pedidos");
-                var traslados = firebase.database().ref('Traslados'); 
-                
-                ambulancias.on('child_added', function (datasnapshot) {
-
-                    latitud = datasnapshot.child("latitud").val();
-                    longitud = datasnapshot.child("longitud").val();
-
-                    ambuPositon = new google.maps.LatLng(latitud, longitud);
-                    markerAmbu = new google.maps.Marker({
-                        position: ambuPositon,
-                        map: map,
-                        icon: ima,
-                        title: "AMBU"
-                    });
-                    infowindowAmbu = new google.maps.InfoWindow({
-                        content: '<b>' + datasnapshot.key + '</b>'
-                    });
-
-                    keys[cont] = datasnapshot.key;
-                    markerArray[cont] = markerAmbu;
-
-                    ArrayInfoWindowAmbu[cont] = infowindowAmbu;
-
-                    markerArray[cont].addListener('click', function() {
-                        alert(ArrayInfoWindowAmbu[cont]);
-                      //  ArrayInfoWindowAmbu[cont].open(map, markerArray[cont]);
-                    });
-                    cont++;
-
-                });
-                ambulancias.on('child_changed', function (datasnapshot) {
-                    latitud = datasnapshot.child("latitud").val();
-                    longitud = datasnapshot.child("longitud").val();
-
-                    markerAmbu = markerArray[keys.indexOf(datasnapshot.key)];
-                    markerAmbu.setPosition(new google.maps.LatLng(latitud, longitud));
-
-                });
-                ambulancias.on('child_removed', function (datasnapshot) {
-                    var s = keys.indexOf(datasnapshot.key);
-                    markerAmbu = markerArray[s];
-                    markerAmbu.setMap(null);
-
-                    markerArray.splice(s, 1);
-                    keys.splice(s, 1);
-                    cont--;
-                });
-                pedidos.on('child_added', function (datasnapshot) {
-
-                    keyPedido = datasnapshot.key;
-
-                    latPedido = datasnapshot.child("latitud").val();
-                    lngPedido = datasnapshot.child("longitud").val();
-
-                    pedidoPositon = new google.maps.LatLng(latPedido, lngPedido);
-                    markerPedido = new google.maps.Marker({
-                        position: pedidoPositon,
-                        map: map,
-                        icon: "icons/user.png",
-                        title: "PEDIDO"
-                    });
-                    
-                    infowindowPedido = new google.maps.InfoWindow({
-                        content: '<b>' + datasnapshot.child("direccion").val() + '</b>' + '<br>' + 'Tipo: '+ datasnapshot.child("tipoEmergencia").val()
-                    });
-                    infowindowPedido.open(map, markerPedido);                  
-                    ArrayKeysPedidos[cont_pedidos]       = keyPedido;
-                    ArrayMarkersPedidos[cont_pedidos]    = markerPedido;
-                    ArrayInfoWindowPedidos[cont_pedidos] = infowindowPedido;
-                    
-                    
-                    
-                    cont_pedidos++;
-                    $("#notifications").html(cont_pedidos);
-                    $("#notifications").addClass("new badge");
-                });
-
-                pedidos.on('child_removed', function (datasnapshot) {
-                    markerPedido.setMap(null);
-                });
-                pedidos.on('child_changed', function (datasnapshot) {
-
-                });
-                traslados.on('child_added', function (datasnapshot) {
-                    // Llego nuevo traslado de clinica
-                    alert("NUEVO TRASLADO EXITOSO");
-                });
             });
 
         </script>
@@ -210,12 +232,6 @@ function mostrarPosicion(position) {
                     <span class="title">Consultas</span>    
                 </a>
             </li>
-            <!--li>
-                <a href="reportes.html" class="waves-effect waves-light collection-item avatar">
-                    <img alt="Reportes" src="icons/icon-reporte.png" class="circle">
-                    <span class="title">Reportes</span>    
-                </a>
-            </li-->
 
             <li><div class="divider"></div></li>
 
@@ -225,9 +241,10 @@ function mostrarPosicion(position) {
             <nav>
                 <div class="nav-wrapper">
                     <a href="#!" class="brand-logo">CRUE Home</a>
+
                     <ul class="right hide-on-med-and-down">
                         <li><a class="waves-effect waves-light"><i class="material-icons left">notifications</i>Pedidos <span id="notifications"></span></a></li>
-                        <li><a class="waves-effect waves-light"><i class="material-icons left">person</i>Admin Crue</a></li>
+                        <li><a class="waves-effect waves-light" onclick="limpiarMapa()"><i class="material-icons left">person</i>Admin Crue</a></li>
                         <li><a id="button"  href="#" data-activates="slide-out" class="button-collapse"><i class="material-icons">reorder</i>                            </a></li>
                     </ul>
                 </div>
@@ -235,13 +252,12 @@ function mostrarPosicion(position) {
         </div> 
         <!--    
         <!--Fin de la parte Grafica principal-->
+        <h4>Seguimiento a Ambulancias</h4>
         <div  id="maps" class="card-panel z-depth-2">
             <div id="googleMap"></div>
-        </div>
-        
-          
-          
+        </div>      
+
         <!--  AIzaSyAL8fCskYf-G2CQMljQ-GGaLrBa352EtVs -->
     </body>
-    
+
 </html>

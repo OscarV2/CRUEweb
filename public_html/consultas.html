@@ -4,8 +4,6 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="description" content="">
-        <meta name="author" content="">
 
         <title>Consultas</title>
         <link rel="icon" href="icons/ic_launcher2.png">
@@ -15,8 +13,7 @@
         <link href="https://fonts.googleapis.com/css?family=Alegreya" rel="stylesheet">
 
         <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAL8fCskYf-G2CQMljQ-GGaLrBa352EtVs" type="text/javascript"></script>
-        <!-- Custom Fonts -->
-        <!--link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"-->
+        <!-- Custom Fonts -->       
         <script src="https://www.gstatic.com/firebasejs/3.2.1/firebase.js"></script>
         <script src="js/jquery.js"></script>
         <script src="js/materialize.js"></script>
@@ -30,17 +27,17 @@
             };
             firebase.initializeApp(config);
 
-            var ambulancias = firebase.database().ref("Ambulancias");
             var pedidos = firebase.database().ref("Pedidos");
             var registros = firebase.database().ref("RegistrosAmbulancias");
             var cont = 1;
             registros.on('child_added', function (datasnapshot) {
-
-                console.log(datasnapshot.child('nombres').val());
+                var numHijos = datasnapshot.child('Pedidos').numChildren();
+                //console.log('number of children: ' + datasnapshot.child('Pedidos').numChildren());
+                //console.log(datasnapshot.child('nombres').val());
                 $("#titulo_card" + cont).append(datasnapshot.child('nombres').val() + '<br>' + datasnapshot.child('apellidos').val());
                 $("#cedula" + cont).append(datasnapshot.child('cedula').val());
                 $("#correo" + cont).append(datasnapshot.child('correo').val());
-                $("#enlace" + cont).append("Servicios: " + datasnapshot.child('NumServicios').val());
+                $("#link" + cont).append("Servicios: " + numHijos);
                 cont++;
             });
 
@@ -52,6 +49,21 @@
                     draggable: true // Choose whether you can drag to open on touch screens
                 }
                 );
+                $('a').click(function () {
+                    var id_enlace = event.target.id;
+                    var id_cedula = $("#cedula" + id_enlace.substr(4)).html();
+                    var cedulaParamedico = id_cedula.substr(8);
+                    
+                    registros.child(cedulaParamedico).child('Pedidos').once('value').then(function (snapshot){
+                        alert(snapshot);
+                        console.log(snapshot.val());
+                    });
+                    
+                    console.log(id_enlace.substr(4));
+                    console.log(id_cedula);
+                    console.log(cedulaParamedico);
+                    
+                });
 
             });
 
@@ -60,34 +72,28 @@
                 $("#tablaServicios").attr('hidden', true);
             }
 
+
             function verTodos() {
                 if ($("#cuerpoTabla").is(":empty")) {
-                    
+
                     pedidos.on('child_added', function (data) {
                         $("#cuerpoTabla").append('<tr><td>' + data.child('fecha').val() + '</td>' + '<td>' + data.child('direccion').val() + '</td>' +
                                 '<td>' + data.child('tipoEmergencia').val() + '</td>' +
                                 '<td>' + data.child('numeroPacientes').val() + '</td>' +
                                 '<td>' + data.child('idAmbulancia').val() + '</td>' +
+                                '<td>' + data.child('Calification').val() + '</td>' +
                                 ' </tr>');
                     });
                     $("#sectionParamedicos").attr('hidden', true);
                     $("#tablaServicios").attr('hidden', false);
 
                 } else {
-                    
+
                     $("#sectionParamedicos").attr('hidden', true);
                     $("#tablaServicios").attr('hidden', false);
                 }
 
-
-
-
-
-
             }
-
-
-
 
         </script>
 
@@ -167,7 +173,7 @@
                                 <p id="correo2">Correo: </p>                                                
                             </div>
                             <div class="card-action">
-                                <a id="enlace2" href="#"></a>
+                                <a id="link2" href="#"></a>
                             </div>
 
                         </div>
@@ -185,7 +191,7 @@
                                 <p id="correo1">Correo: </p>                                                
                             </div>
                             <div class="card-action">
-                                <a id="enlace1" href="#"></a>
+                                <a id="link1" href="#"></a>
                             </div>
 
                         </div>
@@ -203,7 +209,7 @@
                                 <p id="correo3">Correo: </p>                                                
                             </div>
                             <div class="card-action">
-                                <a id="enlace3" href="#"></a>
+                                <a id="link3" href="#"></a>
                             </div>
                         </div>
                     </div>
@@ -219,10 +225,11 @@
                 <thead>
                     <tr>
                         <th>Fecha</th>
-                        <th>Direccion</th>
+                        <th>Dirección</th>
                         <th>Tipo</th>
                         <th>Pacientes</th>
                         <th>Atendido por</th>
+                        <th>Calificación</th>
 
                     </tr>
                 </thead>
@@ -232,8 +239,6 @@
             <a id="btnVolver" class="waves-effect waves-light btn" onclick="volver()"><i class="material-icons left">arrow_back</i>Volver</a>
 
         </section>        
-
-
 
         <!--MODALS  -->
         <footer>
