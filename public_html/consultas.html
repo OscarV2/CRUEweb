@@ -26,14 +26,13 @@
                 storageBucket: "mi-ambulancia.appspot.com"
             };
             firebase.initializeApp(config);
-
+            var nombre, observaciones, sexo, identificacion, edad;
+            var calification;
             var pedidos = firebase.database().ref("Pedidos");
             var registros = firebase.database().ref("RegistrosAmbulancias");
             var cont = 1;
             registros.on('child_added', function (datasnapshot) {
                 var numHijos = datasnapshot.child('Pedidos').numChildren();
-                //console.log('number of children: ' + datasnapshot.child('Pedidos').numChildren());
-                //console.log(datasnapshot.child('nombres').val());
                 $("#titulo_card" + cont).append(datasnapshot.child('nombres').val() + '<br>' + datasnapshot.child('apellidos').val());
                 $("#cedula" + cont).append(datasnapshot.child('cedula').val());
                 $("#correo" + cont).append(datasnapshot.child('correo').val());
@@ -49,20 +48,30 @@
                     draggable: true // Choose whether you can drag to open on touch screens
                 }
                 );
-                $('a').click(function () {
+                $('.modal').modal();
+                $('div > a').click(function () {
+
                     var id_enlace = event.target.id;
                     var id_cedula = $("#cedula" + id_enlace.substr(4)).html();
                     var cedulaParamedico = id_cedula.substr(8);
-                    
-                    registros.child(cedulaParamedico).child('Pedidos').once('value').then(function (snapshot){
-                        alert(snapshot);
-                        console.log(snapshot.val());
+
+                    registros.child(cedulaParamedico).child('Pedidos').once('value').then(function (snapshot) {
+                        snapshot.forEach(
+                                function (childSnapshot) {
+                                    key_pedido = childSnapshot.key;
+                                    console.log('key: ' + key_pedido);
+                                    pedidos.child('Pedido:' + key_pedido).once('value').then(function (data) {
+                                        
+                                        vaciar('cuerpoTabla');
+                                        llenar_tabla(data);
+                                        mostrar_tabla();
+                                    });
+                                }
+                        );
+
+                        //llenar tabla con datos de pedidos del paramedico
                     });
-                    
-                    console.log(id_enlace.substr(4));
-                    console.log(id_cedula);
-                    console.log(cedulaParamedico);
-                    
+
                 });
 
             });
@@ -72,21 +81,13 @@
                 $("#tablaServicios").attr('hidden', true);
             }
 
-
             function verTodos() {
                 if ($("#cuerpoTabla").is(":empty")) {
 
                     pedidos.on('child_added', function (data) {
-                        $("#cuerpoTabla").append('<tr><td>' + data.child('fecha').val() + '</td>' + '<td>' + data.child('direccion').val() + '</td>' +
-                                '<td>' + data.child('tipoEmergencia').val() + '</td>' +
-                                '<td>' + data.child('numeroPacientes').val() + '</td>' +
-                                '<td>' + data.child('idAmbulancia').val() + '</td>' +
-                                '<td>' + data.child('Calification').val() + '</td>' +
-                                ' </tr>');
+                        llenar_tabla(data);
                     });
-                    $("#sectionParamedicos").attr('hidden', true);
-                    $("#tablaServicios").attr('hidden', false);
-
+                    mostrar_tabla();
                 } else {
 
                     $("#sectionParamedicos").attr('hidden', true);
@@ -94,10 +95,50 @@
                 }
 
             }
+            function mostrar_tabla() {
+                $("#sectionParamedicos").attr('hidden', true);
+                $("#tablaServicios").attr('hidden', false);
+            }
+            function llenar_tabla(data) {
+                calification = data.child('calificacion').val();
+                $("#cuerpoTabla").append('<tr><td>' + data.child('fecha').val() + '</td>' + '<td>' + data.child('direccion').val() + '</td>' +
+                        '<td>' + data.child('tipoEmergencia').val() + '</td>' +
+                        '<td>' + data.child('numeroPacientes').val() + '</td>' +
+                        '<td>' + data.child('idAmbulancia').val() + '</td>' +
+                        '<td>' + '<button id="' + data.key + '" class="waves-effect waves-light btn" onclick="muestra_modal()">Ver</button>' + '</td>' +
+                        ' </tr>');
+            }
+
+            function muestra_modal() {
+                vaciar('modalCuerpo');
+                var pedidoKey = event.target.id;
+                console.log("key: " + pedidoKey);
+                //obtener info de pedido y traslado
+                pedidos.child(pedidoKey).child('Traslado').once('value').then(function (snapshot) {
+                    nombre = snapshot.child('Nombres').val();
+                    observaciones = snapshot.child('Observaciones').val();
+                    sexo = snapshot.child('Sexo').val();
+                    identificacion = snapshot.child('Identificacion').val();
+                    edad = snapshot.child('Edad').val();
+                    console.log('nombre: ' + nombre + ' Edad: ' + edad + ' Sexo: ' + sexo + ' ident: ' + identificacion
+                            + ' observaciones: ' + observaciones);
+
+                    $('#modalCuerpo').append('Nombres : ' + nombre + "<br>");
+                    $('#modalCuerpo').append('Edad : ' + edad + "<br>");
+                    $('#modalCuerpo').append('Sexo : ' + sexo + "<br>");
+                    $('#modalCuerpo').append('Identificacion : ' + identificacion + "<br>");
+                    $('#modalCuerpo').append('Observaciones : ' + observaciones);
+                });
+                //llenar modal                
+
+                $('.modal').modal('open');
+            }
+            
+            function vaciar(id){
+                $('#'+id).empty();
+            }
 
         </script>
-
-        <!-- Bootstrap Core JavaScript -->
 
     </head>
     <body id="wrapper">
@@ -132,12 +173,6 @@
                     <span class="title">Consultas</span>    
                 </a>
             </li>
-            <!--li>
-                <a href="reportes.html" class="waves-effect waves-light collection-item avatar">
-                    <img alt="Reportes" src="icons/icon-reporte.png" class="circle">
-                    <span class="title">Reportes</span>    
-                </a>
-            </li-->
 
 
             <li><div class="divider"></div></li>
@@ -173,7 +208,7 @@
                                 <p id="correo2">Correo: </p>                                                
                             </div>
                             <div class="card-action">
-                                <a id="link2" href="#"></a>
+                                <a id="link2"></a>
                             </div>
 
                         </div>
@@ -191,7 +226,7 @@
                                 <p id="correo1">Correo: </p>                                                
                             </div>
                             <div class="card-action">
-                                <a id="link1" href="#"></a>
+                                <a id="link1"></a>
                             </div>
 
                         </div>
@@ -209,14 +244,12 @@
                                 <p id="correo3">Correo: </p>                                                
                             </div>
                             <div class="card-action">
-                                <a id="link3" href="#"></a>
+                                <a id="link3"></a>
                             </div>
                         </div>
                     </div>
                 </div>
             </div> 
-
-
         </section>
 
         <section id="tablaServicios" hidden>
@@ -229,7 +262,7 @@
                         <th>Tipo</th>
                         <th>Pacientes</th>
                         <th>Atendido por</th>
-                        <th>Calificación</th>
+                        <th>Detalles</th>
 
                     </tr>
                 </thead>
@@ -240,10 +273,16 @@
 
         </section>        
 
-        <!--MODALS  -->
-        <footer>
+        <!-- Modal Structure -->
+        <section id="modal1" class="modal">
+            <div class="modal-content">
+                <h4 id="modalTitulo">Detalles Traslado</h4>
+                <p id="modalCuerpo"></p>
+            </div>
+            <p class="modal-footer">
+                <button class="modal-action modal-close waves-effect waves-green btn-flat">Ok</button>
+            </p>
+        </section>               
 
-        </footer>
-        <!--  AIzaSyAL8fCskYf-G2CQMljQ-GGaLrBa352EtVs -->
     </body>
 </html>
