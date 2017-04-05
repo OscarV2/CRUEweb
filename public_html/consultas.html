@@ -26,7 +26,7 @@
                 storageBucket: "mi-ambulancia.appspot.com"
             };
             firebase.initializeApp(config);
-            var nombre, observaciones, sexo, identificacion, edad;
+            var nombre, observaciones, sexo, identificacion, edad, clinica;
             var calification;
             var pedidos = firebase.database().ref("Pedidos");
             var registros = firebase.database().ref("RegistrosAmbulancias");
@@ -60,9 +60,10 @@
                                 function (childSnapshot) {
                                     key_pedido = childSnapshot.key;
                                     console.log('key: ' + key_pedido);
+                                    vaciar('cuerpoTabla');
                                     pedidos.child('Pedido:' + key_pedido).once('value').then(function (data) {
                                         
-                                        vaciar('cuerpoTabla');
+                                        
                                         llenar_tabla(data);
                                         mostrar_tabla();
                                     });
@@ -82,18 +83,21 @@
             }
 
             function verTodos() {
-                if ($("#cuerpoTabla").is(":empty")) {
-
-                    pedidos.on('child_added', function (data) {
+                vaciar('cuerpoTabla');
+                pedidos.on('child_added', function (data) {
                         llenar_tabla(data);
                     });
-                    mostrar_tabla();
+                mostrar_tabla();
+             /*   if ($("#cuerpoTabla").is(":empty")) {
+
+                    
+                    
                 } else {
 
                     $("#sectionParamedicos").attr('hidden', true);
                     $("#tablaServicios").attr('hidden', false);
                 }
-
+*/
             }
             function mostrar_tabla() {
                 $("#sectionParamedicos").attr('hidden', true);
@@ -101,6 +105,11 @@
             }
             function llenar_tabla(data) {
                 calification = data.child('calificacion').val();
+                console.log(calification);
+                if (calification === null) {
+   calification = 'No calificado';
+} 
+                
                 $("#cuerpoTabla").append('<tr><td>' + data.child('fecha').val() + '</td>' + '<td>' + data.child('direccion').val() + '</td>' +
                         '<td>' + data.child('tipoEmergencia').val() + '</td>' +
                         '<td>' + data.child('numeroPacientes').val() + '</td>' +
@@ -120,17 +129,18 @@
                     sexo = snapshot.child('Sexo').val();
                     identificacion = snapshot.child('Identificacion').val();
                     edad = snapshot.child('Edad').val();
+                    clinica = snapshot.child('Clinica').val();
                     console.log('nombre: ' + nombre + ' Edad: ' + edad + ' Sexo: ' + sexo + ' ident: ' + identificacion
                             + ' observaciones: ' + observaciones);
 
-                    $('#modalCuerpo').append('Nombres : ' + nombre + "<br>");
-                    $('#modalCuerpo').append('Edad : ' + edad + "<br>");
-                    $('#modalCuerpo').append('Sexo : ' + sexo + "<br>");
-                    $('#modalCuerpo').append('Identificacion : ' + identificacion + "<br>");
-                    $('#modalCuerpo').append('Observaciones : ' + observaciones);
-                });
-                //llenar modal                
-
+                    $('#modalCuerpo').append('<b>Nombres : </b>' + nombre + "<br>");
+                    $('#modalCuerpo').append('<b>Edad : </b>' + edad + "<br>");
+                    $('#modalCuerpo').append('<b>Sexo : </b>' + sexo + "<br>");
+                    $('#modalCuerpo').append('<b>Identificación : </b>' + identificacion + "<br>");
+                    $('#modalCuerpo').append('<b>Observaciones : </b>' + observaciones + "<br>");
+                    $('#modalCuerpo').append('<b>Atendido en : </b>' + clinica + "<br>");
+                    $('#modalCuerpo').append('<b>Calificación : </b>' + calification);
+                });               
                 $('.modal').modal('open');
             }
             
