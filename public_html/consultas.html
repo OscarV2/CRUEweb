@@ -16,6 +16,7 @@
         <!-- Custom Fonts -->       
         <script src="https://www.gstatic.com/firebasejs/3.2.1/firebase.js"></script>
         <script src="js/jquery.js"></script>
+        <script src="js/utils.js"></script>
         <script src="js/materialize.js"></script>
 
         <script>
@@ -30,7 +31,8 @@
             var calification;
             var pedidos = firebase.database().ref("Pedidos");
             var registros = firebase.database().ref("RegistrosAmbulancias");
-            var cont = 1;
+            var cont = 1, fecha1, fecha2, fecha3, fecha4;
+            var totalTraslado, tiempoReaccion, tiempoRespuesta;
             registros.on('child_added', function (datasnapshot) {
                 var numHijos = datasnapshot.child('Pedidos').numChildren();
                 $("#titulo_card" + cont).append(datasnapshot.child('nombres').val() + '<br>' + datasnapshot.child('apellidos').val());
@@ -62,8 +64,8 @@
                                     console.log('key: ' + key_pedido);
                                     vaciar('cuerpoTabla');
                                     pedidos.child('Pedido:' + key_pedido).once('value').then(function (data) {
-                                        
-                                        
+
+
                                         llenar_tabla(data);
                                         mostrar_tabla();
                                     });
@@ -85,19 +87,19 @@
             function verTodos() {
                 vaciar('cuerpoTabla');
                 pedidos.on('child_added', function (data) {
-                        llenar_tabla(data);
-                    });
+                    llenar_tabla(data);
+                });
                 mostrar_tabla();
-             /*   if ($("#cuerpoTabla").is(":empty")) {
-
-                    
-                    
-                } else {
-
-                    $("#sectionParamedicos").attr('hidden', true);
-                    $("#tablaServicios").attr('hidden', false);
-                }
-*/
+                /*   if ($("#cuerpoTabla").is(":empty")) {
+                 
+                 
+                 
+                 } else {
+                 
+                 $("#sectionParamedicos").attr('hidden', true);
+                 $("#tablaServicios").attr('hidden', false);
+                 }
+                 */
             }
             function mostrar_tabla() {
                 $("#sectionParamedicos").attr('hidden', true);
@@ -107,9 +109,9 @@
                 calification = data.child('calificacion').val();
                 console.log(calification);
                 if (calification === null) {
-   calification = 'No calificado';
-} 
-                
+                    calification = 'No calificado';
+                }
+
                 $("#cuerpoTabla").append('<tr><td>' + data.child('fecha').val() + '</td>' + '<td>' + data.child('direccion').val() + '</td>' +
                         '<td>' + data.child('tipoEmergencia').val() + '</td>' +
                         '<td>' + data.child('numeroPacientes').val() + '</td>' +
@@ -122,6 +124,52 @@
                 vaciar('modalCuerpo');
                 var pedidoKey = event.target.id;
                 console.log("key: " + pedidoKey);
+
+                pedidos.child(pedidoKey).child('tiempos').once('value').then(function (snapshot) {
+
+                    fecha1 = snapshot.child('1').val();
+                    fecha2 = snapshot.child('2').val();
+                    fecha3 = snapshot.child('3').val();
+                    fecha4 = snapshot.child('4').val();
+
+                    var str1 = fecha1.split("_");
+                    var strFechas1fechas = str1[0].split(":");
+
+                    var strFechas1tiempo = str1[1].split(":");
+                    var nuevaFecha1 = setFecha(strFechas1fechas, strFechas1tiempo);
+
+                    var str2 = fecha2.split("_");
+                    var strFechas2fechas = str2[0].split(":");
+                    var strFechas2tiempo = str2[1].split(":");
+                    var nuevaFecha2 = setFecha(strFechas2fechas, strFechas2tiempo);
+
+                    var str3 = fecha3.split("_");
+                    var strFechas3fechas = str3[0].split(":");
+                    var strFechas3tiempo = str3[1].split(":");
+                    var nuevaFecha3 = setFecha(strFechas2fechas, strFechas3tiempo);
+
+                    var str4 = fecha4.split("_");
+                    var strFechas4fechas = str4[0].split(":");
+                    var strFechas4tiempo = str4[1].split(":");
+                    var nuevaFecha4 = setFecha(strFechas3fechas, strFechas4tiempo);
+
+                    console.log((nuevaFecha4.getTime() - nuevaFecha2.getTime()) / 1000); // segundos total traslado
+                    console.log((nuevaFecha3.getTime() - nuevaFecha2.getTime()) / 1000); // segundos tiempo en llegar
+                    console.log((nuevaFecha2.getTime() - nuevaFecha1.getTime()) / 1000); // segundos tiempo respuesta
+
+                    var diff1 = (nuevaFecha2.getTime() - nuevaFecha1.getTime()) / 1000;
+                    var diff2 = (nuevaFecha3.getTime() - nuevaFecha2.getTime()) / 1000;
+                    var diff3 = (nuevaFecha4.getTime() - nuevaFecha2.getTime()) / 1000;
+
+
+
+
+                    totalTraslado = calcularTiempo(diff3);
+                    tiempoReaccion = calcularTiempo(diff1);
+                    tiempoRespuesta = calcularTiempo(diff2);
+
+                });
+
                 //obtener info de pedido y traslado
                 pedidos.child(pedidoKey).child('Traslado').once('value').then(function (snapshot) {
                     nombre = snapshot.child('Nombres').val();
@@ -129,6 +177,9 @@
                     sexo = snapshot.child('Sexo').val();
                     identificacion = snapshot.child('Identificacion').val();
                     edad = snapshot.child('Edad').val();
+
+
+
                     clinica = snapshot.child('Clinica').val();
                     console.log('nombre: ' + nombre + ' Edad: ' + edad + ' Sexo: ' + sexo + ' ident: ' + identificacion
                             + ' observaciones: ' + observaciones);
@@ -139,14 +190,23 @@
                     $('#modalCuerpo').append('<b>Identificación : </b>' + identificacion + "<br>");
                     $('#modalCuerpo').append('<b>Observaciones : </b>' + observaciones + "<br>");
                     $('#modalCuerpo').append('<b>Atendido en : </b>' + clinica + "<br>");
-                    $('#modalCuerpo').append('<b>Calificación : </b>' + calification);
-                });               
+                    $('#modalCuerpo').append('<b>Calificación : </b>' + calification + "<br>");
+
+                    $('#modalCuerpo').append('<b>Tiempo reaccion ambulancia : </b>' + tiempoRespuesta[0] + ' min' + ' ' + tiempoRespuesta[1] + ' segundos' + "<br>");
+                    $('#modalCuerpo').append('<b>Tiempo reaccion ambulancia : </b>' + tiempoReaccion[0] + ' min' + ' ' + tiempoReaccion[1] + ' segundos' + "<br>");
+                    $('#modalCuerpo').append('<b>Total traslado : </b>' + totalTraslado[0] + ' min' + ' ' + totalTraslado[1] + ' segundos' + "<br>");
+
+
+
+                    //$('#modalCuerpo').append('<b>Fecha hizo pedido : </b>' + fecha1 + "<br>");
+                    //$('#modalCuerpo').append('<b>Fecha acepta pedido : </b>' + fecha2 + "<br>");
+                    //$('#modalCuerpo').append('<b>Fecha Atencion emergencia : </b>' + fecha3 + "<br>");
+                    //$('#modalCuerpo').append('<b>Terminacion de traslado : </b>' + fecha4 + "<br>");
+                });
                 $('.modal').modal('open');
             }
+
             
-            function vaciar(id){
-                $('#'+id).empty();
-            }
 
         </script>
 

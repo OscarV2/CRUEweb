@@ -43,8 +43,6 @@
             var cont_pedidos = 0, cont = 0;
             var ima = "icons/ambulance3.png";
 
-
-
             var infowindowAmbu, infowindowPedido;
             google.maps.event.addDomListener(window, 'load', localizar());
             function localizar() {
@@ -113,6 +111,11 @@
                 latitud = datasnapshot.child("latitud").val();
                 longitud = datasnapshot.child("longitud").val();
 
+                var ocupado =  datasnapshot.child("ocupado").val();
+                if(ocupado){
+                    // ambulancia ocupada
+                    console.log("la ambu esta ocupada");
+                }
                 markerAmbu = markerArray[keys.indexOf(datasnapshot.key)];
                 markerAmbu.setPosition(new google.maps.LatLng(latitud, longitud));
 

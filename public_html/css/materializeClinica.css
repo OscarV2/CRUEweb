@@ -35,6 +35,15 @@
   color: #f3989b !important;
 }
 
+li > input{
+    color: white;
+    
+}
+
+textArea {
+    
+    color: white;
+}
 .materialize-red.lighten-2 {
   background-color: #ee6e73 !important;
 }
@@ -2370,7 +2379,6 @@ input,
 optgroup,
 select,
 textarea {
-  color: inherit;
   /* 1 */
   font: inherit;
   /* 2 */
