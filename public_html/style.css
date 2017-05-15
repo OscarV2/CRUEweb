@@ -28,6 +28,10 @@
 }
 */
 
+#modal1  h4, p{
+    color: black;
+}
+
 #map-canvas {
   width: 70%;
   height: 580px;

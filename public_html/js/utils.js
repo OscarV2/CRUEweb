@@ -17,18 +17,26 @@ function setFecha(strFechasfechas, strFechastiempo) {
     return FechaData;
 }
 
+function setFecha1(fecha){
+    
+    var str1 = fecha.split("_");
+    var strFechas1fechas = str1[0].split(":");
+    var strFechas1tiempo = str1[1].split(":");
+    
+    var nuevaFecha1 = setFecha(strFechas1fechas, strFechas1tiempo);
+    
+    return nuevaFecha1;
+}
+
 function calcularTiempo(diff) { // la diferencia en segundos
     
-    var timeArray = [ 0, diff];
    
-    while (diff >= 60) {
-        timeArray[1] ++;
-        timeArray[0] -=  60;
-    } 
     
+    var min = Math.floor(diff/60);
+    var sec = diff - (min*60);
     
-    return timeArray;
-    
+     var timeArray = [ min, sec];
+    return timeArray;    
     
 }
 

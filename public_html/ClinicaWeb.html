@@ -28,13 +28,13 @@
             var ambuPosition, markerAmbu, markerClinica, map;
             var ima = "icons/ambulance3.png";
             var nombre_clinica;
-            var contentMarkerClinica = '<b>Clinica Santa Isabel</b>';
+            var contentMarkerClinica = '<b>Clinica Pediatrica</b>';
             var infoWindowAmbu;
             var latClinica, lngClinica;
             var infoWindow = new google.maps.InfoWindow({
                 content: contentMarkerClinica
             });
-
+            var numPacientes, tipoEmergencia; 
             google.maps.event.addDomListener(window, 'load', getLocation());
 
             function getLocation() {
@@ -86,7 +86,7 @@
                     position: new google.maps.LatLng(latClinica, lngClinica),
                     map: map,
                     icon: 'icons/marker_hospital.png',
-                    title: "AMBU"
+                    title: "Clinica"
                 });
                 infoWindow.open(map, markerClinica);
 
@@ -96,9 +96,21 @@
 
                 IdPaciente = datasnapshot.child("idPaciente").val();
                 console.log(IdPaciente);
+                
                 pedido = firebase.database().ref("Pedidos").child("Pedido:" + IdPaciente);
+                
+                pedido.once('value').then(function (data){
+                    
+                    numPacientes   = data.child('numeroPacientes').val();
+                    tipoEmergencia = data.child('tipoEmergencia').val();
+                    
+                    console.log('numPacientes: '+ numPacientes);
+                    console.log('tipo: '+ tipoEmergencia);
+                });
                 $("#notis_Pedidos").addClass("new badge");
-                $("#btnMostrarAmbulancia").attr("hidden", false);
+                
+               
+//                $("#btnMostrarAmbulancia").attr("hidden", false);
 
             });
             function mostrarAmbulancia() {
@@ -165,13 +177,29 @@
                 };
                 // asignar id a traslado
                 pedido.child('Traslado').set(datosForm);
-
+                alert('Informacion enviada exitosamente.');
+                
+                $("#lista-formulario").attr("hidden", true);
+                $("#logro").attr("hidden", false);
+                $("#contenedor1").attr("hidden", false);
+                $("#contenedor2").attr("hidden", false);
+                $('#test1').prop('checked', false);
+                
                 //limpiar variables y mapa                
 
             }
             function checkear() {
                 $('#test1').attr('checked', false);
             }
+            
+            function mostrarModal(){
+                
+                console.log("mostrando modal");
+                
+                $("#tipoEmergenciaTexto").append("Tipo de emergencia: "+ tipoEmergencia);
+                $("#numeroPacientesTexto").append("Numero de Pacientes: "+ numPacientes);                
+                
+            };
         </script>
     </head>
     <body>
@@ -182,7 +210,7 @@
 
                     <ul class="right hide-on-med-and-down">
                         <!--li id="btnMostrarAmbulancia"  ><button  class="waves-effect btn" onclick="checkear()">Mostrar</button></li-->
-                        <li><a class="waves-effect waves-light" href="#modal1"><i class="material-icons left">notifications</i>Pedidos<span id="notis_Pedidos" class="badge"></span></a></li>
+                        <li onclick="mostrarModal()"><a class="waves-effect waves-light" href="#modal1"><i class="material-icons left">notifications</i>Pedidos<span id="notis_Pedidos" class="badge"></span></a></li>
                         <li><a id="nombreClinicaCaja" class="waves-effect waves-light"><i class="material-icons left">person</i>Clínica Pediatrica</a></li>
                         <li><a id="button"  href="#" class=""><i class="material-icons">reorder</i>
                             </a></li>

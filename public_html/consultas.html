@@ -32,7 +32,7 @@
             var pedidos = firebase.database().ref("Pedidos");
             var registros = firebase.database().ref("RegistrosAmbulancias");
             var cont = 1, fecha1, fecha2, fecha3, fecha4;
-            var totalTraslado, tiempoReaccion, tiempoRespuesta;
+            var totalTraslado, tiempoReaccion, tiempoRespuesta, tiempoTotal;
             registros.on('child_added', function (datasnapshot) {
                 var numHijos = datasnapshot.child('Pedidos').numChildren();
                 $("#titulo_card" + cont).append(datasnapshot.child('nombres').val() + '<br>' + datasnapshot.child('apellidos').val());
@@ -106,7 +106,7 @@
                 $("#tablaServicios").attr('hidden', false);
             }
             function llenar_tabla(data) {
-                calification = data.child('calificacion').val();
+                calification = data.child('Calification').val();
                 console.log(calification);
                 if (calification === null) {
                     calification = 'No calificado';
@@ -132,41 +132,20 @@
                     fecha3 = snapshot.child('3').val();
                     fecha4 = snapshot.child('4').val();
 
-                    var str1 = fecha1.split("_");
-                    var strFechas1fechas = str1[0].split(":");
-
-                    var strFechas1tiempo = str1[1].split(":");
-                    var nuevaFecha1 = setFecha(strFechas1fechas, strFechas1tiempo);
-
-                    var str2 = fecha2.split("_");
-                    var strFechas2fechas = str2[0].split(":");
-                    var strFechas2tiempo = str2[1].split(":");
-                    var nuevaFecha2 = setFecha(strFechas2fechas, strFechas2tiempo);
-
-                    var str3 = fecha3.split("_");
-                    var strFechas3fechas = str3[0].split(":");
-                    var strFechas3tiempo = str3[1].split(":");
-                    var nuevaFecha3 = setFecha(strFechas2fechas, strFechas3tiempo);
-
-                    var str4 = fecha4.split("_");
-                    var strFechas4fechas = str4[0].split(":");
-                    var strFechas4tiempo = str4[1].split(":");
-                    var nuevaFecha4 = setFecha(strFechas3fechas, strFechas4tiempo);
-
-                    console.log((nuevaFecha4.getTime() - nuevaFecha2.getTime()) / 1000); // segundos total traslado
-                    console.log((nuevaFecha3.getTime() - nuevaFecha2.getTime()) / 1000); // segundos tiempo en llegar
-                    console.log((nuevaFecha2.getTime() - nuevaFecha1.getTime()) / 1000); // segundos tiempo respuesta
+                    var nuevaFecha1 = setFecha1(fecha1);
+                    var nuevaFecha2 = setFecha1(fecha2);
+                    var nuevaFecha3 = setFecha1(fecha3);
+                    var nuevaFecha4 = setFecha1(fecha4);
 
                     var diff1 = (nuevaFecha2.getTime() - nuevaFecha1.getTime()) / 1000;
                     var diff2 = (nuevaFecha3.getTime() - nuevaFecha2.getTime()) / 1000;
                     var diff3 = (nuevaFecha4.getTime() - nuevaFecha2.getTime()) / 1000;
-
-
-
+                    var diff4 = (nuevaFecha4.getTime() - nuevaFecha1.getTime()) / 1000;
 
                     totalTraslado = calcularTiempo(diff3);
                     tiempoReaccion = calcularTiempo(diff1);
                     tiempoRespuesta = calcularTiempo(diff2);
+                    tiempoTotal = calcularTiempo(diff4);
 
                 });
 
@@ -177,8 +156,6 @@
                     sexo = snapshot.child('Sexo').val();
                     identificacion = snapshot.child('Identificacion').val();
                     edad = snapshot.child('Edad').val();
-
-
 
                     clinica = snapshot.child('Clinica').val();
                     console.log('nombre: ' + nombre + ' Edad: ' + edad + ' Sexo: ' + sexo + ' ident: ' + identificacion
@@ -193,20 +170,24 @@
                     $('#modalCuerpo').append('<b>Calificación : </b>' + calification + "<br>");
 
                     $('#modalCuerpo').append('<b>Tiempo reaccion ambulancia : </b>' + tiempoRespuesta[0] + ' min' + ' ' + tiempoRespuesta[1] + ' segundos' + "<br>");
-                    $('#modalCuerpo').append('<b>Tiempo reaccion ambulancia : </b>' + tiempoReaccion[0] + ' min' + ' ' + tiempoReaccion[1] + ' segundos' + "<br>");
+                    $('#modalCuerpo').append('<b>Tiempo respuesta ambulancia : </b>' + tiempoReaccion[0] + ' min' + ' ' + tiempoReaccion[1] + ' segundos' + "<br>");
+
                     $('#modalCuerpo').append('<b>Total traslado : </b>' + totalTraslado[0] + ' min' + ' ' + totalTraslado[1] + ' segundos' + "<br>");
 
+                    $('#modalCuerpo').append('<b>Total tiempo servicio : </b>' + tiempoTotal[0] + ' min' + ' ' + tiempoTotal[1] + ' segundos' + "<br>");
 
-
-                    //$('#modalCuerpo').append('<b>Fecha hizo pedido : </b>' + fecha1 + "<br>");
-                    //$('#modalCuerpo').append('<b>Fecha acepta pedido : </b>' + fecha2 + "<br>");
-                    //$('#modalCuerpo').append('<b>Fecha Atencion emergencia : </b>' + fecha3 + "<br>");
-                    //$('#modalCuerpo').append('<b>Terminacion de traslado : </b>' + fecha4 + "<br>");
+                    /*
+                     
+                     $('#modalCuerpo').append('<b>Fecha hizo pedido : </b>' + fecha1 + "<br>");
+                     $('#modalCuerpo').append('<b>Fecha acepta pedido : </b>' + fecha2 + "<br>");
+                     $('#modalCuerpo').append('<b>Fecha Atencion emergencia : </b>' + fecha3 + "<br>");
+                     $('#modalCuerpo').append('<b>Terminacion de traslado : </b>' + fecha4 + "<br>");
+                     */
                 });
                 $('.modal').modal('open');
-            }
 
-            
+
+            }
 
         </script>
 
