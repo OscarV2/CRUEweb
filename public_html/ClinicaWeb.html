@@ -20,6 +20,7 @@
         <script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyAL8fCskYf-G2CQMljQ-GGaLrBa352EtVs" type="text/javascript"></script>
 
         <script src="js/jquery.js"></script>
+        <script src="js/utils.js"></script>
         <script src="js/materialize.js"></script>
 
         <script>
@@ -34,18 +35,10 @@
             var infoWindow = new google.maps.InfoWindow({
                 content: contentMarkerClinica
             });
-            var numPacientes, tipoEmergencia; 
+            var numPacientes, tipoEmergencia;
             google.maps.event.addDomListener(window, 'load', getLocation());
 
-            function getLocation() {
-
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(showPosition);
-
-                } else {
-                    alert("Geolocation is not supported by this browser.");
-                }
-            }
+            
             function showPosition(position) {
 
                 var myPositon = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
@@ -63,12 +56,7 @@
                 // $("#btnMostrarAmbulancia").attr("hidden", "hidden");
 
             });
-            var config = {
-                apiKey: "AIzaSyAL8fCskYf-G2CQMljQ-GGaLrBa352EtVs",
-                authDomain: "mi-ambulancia.firebaseapp.com",
-                databaseURL: "https://mi-ambulancia.firebaseio.com",
-                storageBucket: "mi-ambulancia.appspot.com"
-            };
+            
             firebase.initializeApp(config);
 
             var clinica = firebase.database().ref("Clinicas");
@@ -86,7 +74,7 @@
                     position: new google.maps.LatLng(latClinica, lngClinica),
                     map: map,
                     icon: 'icons/marker_hospital.png',
-                    title: "Clinica"
+                    title: "Hospital"
                 });
                 infoWindow.open(map, markerClinica);
 
@@ -96,22 +84,18 @@
 
                 IdPaciente = datasnapshot.child("idPaciente").val();
                 console.log(IdPaciente);
-                
+
                 pedido = firebase.database().ref("Pedidos").child("Pedido:" + IdPaciente);
-                
-                pedido.once('value').then(function (data){
-                    
-                    numPacientes   = data.child('numeroPacientes').val();
+
+                pedido.once('value').then(function (data) {
+
+                    numPacientes = data.child('numeroPacientes').val();
                     tipoEmergencia = data.child('tipoEmergencia').val();
-                    
-                    console.log('numPacientes: '+ numPacientes);
-                    console.log('tipo: '+ tipoEmergencia);
+
+                    console.log('numPacientes: ' + numPacientes);
+                    console.log('tipo: ' + tipoEmergencia);
                 });
                 $("#notis_Pedidos").addClass("new badge");
-                
-               
-//                $("#btnMostrarAmbulancia").attr("hidden", false);
-
             });
             function mostrarAmbulancia() {
 
@@ -164,6 +148,15 @@
                     $('#test2').prop('checked', false);
                 }
             }
+                     
+            function mostrarModal() {
+
+    if (tipoEmergencia !== undefined) {
+
+        handleModalClinica(tipoEmergencia, numPacientes);
+    }
+
+}
 
             function enviarDatos() {
 
@@ -173,33 +166,19 @@
                     , "Nombres": $("#Nombres").val()
                     , "Observaciones": $("#observacionesFormSi").val()
                     , "Clinica": nombre_clinica
-                    
+
                 };
                 // asignar id a traslado
                 pedido.child('Traslado').set(datosForm);
                 alert('Informacion enviada exitosamente.');
                 
-                $("#lista-formulario").attr("hidden", true);
-                $("#logro").attr("hidden", false);
-                $("#contenedor1").attr("hidden", false);
-                $("#contenedor2").attr("hidden", false);
-                $('#test1').prop('checked', false);
-                
-                //limpiar variables y mapa                
-
-            }
-            function checkear() {
-                $('#test1').attr('checked', false);
+                //limpiar variables y mapa
+                IdPaciente = undefined;
+                resetClinica();
+                clinica.remove();
+          
             }
             
-            function mostrarModal(){
-                
-                console.log("mostrando modal");
-                
-                $("#tipoEmergenciaTexto").append("Tipo de emergencia: "+ tipoEmergencia);
-                $("#numeroPacientesTexto").append("Numero de Pacientes: "+ numPacientes);                
-                
-            };
         </script>
     </head>
     <body>
@@ -284,17 +263,17 @@
         </form>
 
         <p id="map-canvas"></p>   
-        
+
         <div id="modal1" class="modal">
-    <div class="modal-content">
-      <h4>Informacion de emergencia</h4>
-      <p id="tipoEmergenciaTexto"></p>
-      <p id="numeroPacientesTexto"></p>
-    </div>
-    <div class="modal-footer">
-      <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Ok</a>
-    </div>
-  </div>
+            <div class="modal-content">
+                <h4>Informacion de emergencia</h4>
+                <p id="tipoEmergenciaTexto"></p>
+                <p id="numeroPacientesTexto"></p>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Ok</a>
+            </div>
+        </div>
 
         <footer>
 

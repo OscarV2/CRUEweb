@@ -19,13 +19,7 @@
         <script src="js/utils.js"></script>
         <script src="js/materialize.js"></script>
 
-        <script>
-            var config = {
-                apiKey: "AIzaSyAL8fCskYf-G2CQMljQ-GGaLrBa352EtVs",
-                authDomain: "mi-ambulancia.firebaseapp.com",
-                databaseURL: "https://mi-ambulancia.firebaseio.com",
-                storageBucket: "mi-ambulancia.appspot.com"
-            };
+        <script>          
             firebase.initializeApp(config);
             var nombre, observaciones, sexo, identificacion, edad, clinica;
             var calification;
@@ -65,14 +59,14 @@
                                     vaciar('cuerpoTabla');
                                     pedidos.child('Pedido:' + key_pedido).once('value').then(function (data) {
 
-
+//llenar tabla con datos de pedidos del paramedico
                                         llenar_tabla(data);
                                         mostrar_tabla();
                                     });
                                 }
                         );
 
-                        //llenar tabla con datos de pedidos del paramedico
+                        
                     });
 
                 });
@@ -171,26 +165,15 @@
 
                     $('#modalCuerpo').append('<b>Tiempo reaccion ambulancia : </b>' + tiempoRespuesta[0] + ' min' + ' ' + tiempoRespuesta[1] + ' segundos' + "<br>");
                     $('#modalCuerpo').append('<b>Tiempo respuesta ambulancia : </b>' + tiempoReaccion[0] + ' min' + ' ' + tiempoReaccion[1] + ' segundos' + "<br>");
-
                     $('#modalCuerpo').append('<b>Total traslado : </b>' + totalTraslado[0] + ' min' + ' ' + totalTraslado[1] + ' segundos' + "<br>");
-
                     $('#modalCuerpo').append('<b>Total tiempo servicio : </b>' + tiempoTotal[0] + ' min' + ' ' + tiempoTotal[1] + ' segundos' + "<br>");
 
-                    /*
-                     
-                     $('#modalCuerpo').append('<b>Fecha hizo pedido : </b>' + fecha1 + "<br>");
-                     $('#modalCuerpo').append('<b>Fecha acepta pedido : </b>' + fecha2 + "<br>");
-                     $('#modalCuerpo').append('<b>Fecha Atencion emergencia : </b>' + fecha3 + "<br>");
-                     $('#modalCuerpo').append('<b>Terminacion de traslado : </b>' + fecha4 + "<br>");
-                     */
                 });
                 $('.modal').modal('open');
-
 
             }
 
         </script>
-
     </head>
     <body id="wrapper">
 
