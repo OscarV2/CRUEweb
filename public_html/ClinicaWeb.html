@@ -28,7 +28,7 @@
             var latAmbulancia, lngAmbulancia, IdAmbulancia, IdPaciente, ambulancia, pedido;
             var ambuPosition, markerAmbu, markerClinica, map;
             var ima = "icons/ambulance3.png";
-            var nombre_clinica;
+            //var nombre_clinica;
             var contentMarkerClinica = '<b>Clinica Pediatrica</b>';
             var infoWindowAmbu;
             var latClinica, lngClinica;
@@ -38,7 +38,7 @@
             var numPacientes, tipoEmergencia;
             google.maps.event.addDomListener(window, 'load', getLocation());
 
-            
+            var nombreClinica = sessionStorage.myvar;
             function showPosition(position) {
 
                 var myPositon = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
@@ -53,13 +53,25 @@
             $(document).ready(function () {
                 $(".button-collapse").sideNav();
                 $('.modal').modal();
+                $("#nombreClinicaCaja").append(nombreClinica);
                 // $("#btnMostrarAmbulancia").attr("hidden", "hidden");
+                $('.dropdown-button').dropdown({
+                    inDuration: 300,
+                    outDuration: 225,
+                    constrainWidth: false, // Does not change width of dropdown to that of the activator
+                    hover: true, // Activate on hover
+                    gutter: 0, // Spacing from edge
+                    belowOrigin: false, // Displays dropdown below the button
+                    alignment: 'left', // Displays dropdown with edge aligned to the left of button
+                    stopPropagation: false // Stops event propagation
+                }
+                );
 
             });
-            
+
             firebase.initializeApp(config);
 
-            var clinica = firebase.database().ref("Clinicas");
+            var clinica = firebase.database().ref("Clinicas/" + nombreClinica+"/Pedidos");
             pedido = firebase.database().ref("Pedidos");
             ambulancia = firebase.database().ref("Ambulancias");
 
@@ -68,8 +80,8 @@
                 //$("#nombreClinicaCaja").add(nombre_clinica);
                 IdAmbulancia = datasnapshot.child("idAmbulancia").val();
                 console.log(IdAmbulancia);
-                latClinica = datasnapshot.child('ubicacion').child('latitude').val();
-                lngClinica = datasnapshot.child('ubicacion').child('longitude').val();
+                latClinica = datasnapshot.child('latitude').val();
+                lngClinica = datasnapshot.child('longitude').val();
                 markerClinica = new google.maps.Marker({
                     position: new google.maps.LatLng(latClinica, lngClinica),
                     map: map,
@@ -148,15 +160,15 @@
                     $('#test2').prop('checked', false);
                 }
             }
-                     
+
             function mostrarModal() {
 
-    if (tipoEmergencia !== undefined) {
+                if (tipoEmergencia !== undefined) {
 
-        handleModalClinica(tipoEmergencia, numPacientes);
-    }
+                    handleModalClinica(tipoEmergencia, numPacientes);
+                }
 
-}
+            }
 
             function enviarDatos() {
 
@@ -171,14 +183,14 @@
                 // asignar id a traslado
                 pedido.child('Traslado').set(datosForm);
                 alert('Informacion enviada exitosamente.');
-                
+
                 //limpiar variables y mapa
                 IdPaciente = undefined;
                 resetClinica();
                 clinica.remove();
-          
+
             }
-            
+          
         </script>
     </head>
     <body>
@@ -190,7 +202,7 @@
                     <ul class="right hide-on-med-and-down">
                         <!--li id="btnMostrarAmbulancia"  ><button  class="waves-effect btn" onclick="checkear()">Mostrar</button></li-->
                         <li onclick="mostrarModal()"><a class="waves-effect waves-light" href="#modal1"><i class="material-icons left">notifications</i>Pedidos<span id="notis_Pedidos" class="badge"></span></a></li>
-                        <li><a id="nombreClinicaCaja" class="waves-effect waves-light"><i class="material-icons left">person</i>Clínica Pediatrica</a></li>
+                        <li><a id="nombreClinicaCaja" class="dropdown-button waves-effect waves-light" data-activates='dropdown1'><i class="material-icons left">person</i></a></li>
                         <li><a id="button"  href="#" class=""><i class="material-icons">reorder</i>
                             </a></li>
 
@@ -262,6 +274,9 @@
             </ul>    
         </form>
 
+        <ul id='dropdown1' class='dropdown-content'>
+            <li><a href="index.html">Cerrar Sesion</a></li>
+        </ul>
         <p id="map-canvas"></p>   
 
         <div id="modal1" class="modal">

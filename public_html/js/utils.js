@@ -73,8 +73,8 @@ function resetClinica() {
     
     $("#lista-formulario").attr("hidden", true);
                 $("#logro").attr("hidden", false);
-                $("#contenedor1").attr("hidden", false).empty();
-                $("#contenedor2").attr("hidden", false).empty();
+                $("#contenedor1").attr("hidden", false);
+                $("#contenedor2").attr("hidden", false);
                 $('#test1').prop('checked', false);
                 $('#test2').prop('checked', false);
                 $('#rad_si_Femenino').prop('checked', false);
@@ -88,8 +88,9 @@ function vaciar(id) {
 }
 
 /*  Funciones estadisticas  */
-
-var configPie = {
+function setConfigPie(contadoresTipo){
+   
+    var configPie = {
  	type: "pie", 
  	backgroundColor: "#FFFFFF",
  	plot: {
@@ -126,27 +127,30 @@ var configPie = {
  	},
 	series : [
 		{
-			values : [11.38],
+			values : [contadoresTipo[1]],
 			text: "Cardiorespiratorio",
 		  backgroundColor: '#50ADF5',
 		},
 		{
-		  values: [56.94],
+		  values: [contadoresTipo[0]],
 		  text: "Accidente de transito",
 		  backgroundColor: '#FF7965'
 		},
 		{
-		  values: [14.52],
+		  values: [contadoresTipo[2]],
 		  text: 'Quemaduras',
 		  backgroundColor: '#FFCB45'
 		},
 		{
 		  text: 'Otro',
-		  values: [7.48],
+		  values: [contadoresTipo[3]],
 		  backgroundColor: '#6FB07F'
 		}
 	]
 };
+    return configPie;
+}
+
 
 
 

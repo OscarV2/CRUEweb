@@ -27,22 +27,38 @@
         <script> zingchart.MODULESDIR = "https://cdn.zingchart.com/modules/";
             ZC.LICENSE = ["569d52cefae586f634c54f86dc99e6a9", "ee6b7db5b51705a13dc2339db3edaf6d"];</script>
         <script>
-
+            
             firebase.initializeApp(config);
-
+            var todosLosPedidos = [];
             var pedidos = firebase.database().ref("Pedidos");
+            var contadoresTipo = [0, 0, 0, 0];
             pedidos.once('value').then(function (snapshot) {
                 snapshot.forEach(
                         function (childSnapshot) {
-
+                            
+                            todosLosPedidos.push(childSnapshot);
+                            if (childSnapshot.child("tipoEmergencia").val() == "Quemaduras") {
+                                
+                                contadoresTipo[2]++;
+                            } else if(childSnapshot.child("tipoEmergencia").val() == "Accidente de tránsito"){
+                                contadoresTipo[0]++;
+                            }else if(childSnapshot.child("tipoEmergencia").val() == "Cardiorespiratorio"){
+                                contadoresTipo[1]++;
+                            }else if(childSnapshot.child("tipoEmergencia").val() == "Otro"){
+                                contadoresTipo[3]++;
+                            }
                         }
                 );
+        //
+        ;
+        zingchart.render({
+                    id: 'myChart',
+                    data: setConfigPie(contadoresTipo),
+                    height: 500,
+                    width: 725
+                });
             });
-
-           
-
             
-
             $(document).ready(function () {
                 $('.button-collapse').sideNav({
                     menuWidth: 300, // Default is 240
@@ -51,9 +67,19 @@
                     draggable: true // Choose whether you can drag to open on touch screens
                 }
                 );
-
+                
+                $('.dropdown-button').dropdown({
+                    inDuration: 300,
+                    outDuration: 225,
+                    constrainWidth: false, // Does not change width of dropdown to that of the activator
+                    hover: true, // Activate on hover
+                    gutter: 0, // Spacing from edge
+                    belowOrigin: false, // Displays dropdown below the button
+                    alignment: 'left', // Displays dropdown with edge aligned to the left of button
+                    stopPropagation: false // Stops event propagation
+                });
                 $('.collapsible').collapsible();
-
+                
                 var ambulancias = firebase.database().ref("Ambulancias");
                 var pedidos = firebase.database().ref("Pedidos");
                 var chartData = {
@@ -65,11 +91,11 @@
                         "styles": ["red", "#ff6666", "#ff99cc", "#cc99ff", "#6699ff", "blue", "#9988fc"]
                     },
                     "scale-x": {
-                        "labels": ["Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre"]
+                        "labels": ["Diciembre", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio"]
                     },
                     "series": [// Insert your series data here.
                         {"values": [35, 42, 67, 89, 32, 23, 76]}
-
+                        
                     ]
                 };
                 var chartDataDias = {
@@ -81,11 +107,11 @@
                         "styles": ["red", "#ff6666", "#ff99cc", "#cc99ff", "#6699ff", "blue", "#9988fc"]
                     },
                     "scale-x": {
-                        "labels": ["Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"]
+                        "labels": ["Sabado", "Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes"]
                     },
                     "series": [// Insert your series data here.
                         {"values": [5, 2, 7, 5, 2, 3, 6]}
-
+                        
                     ]
                 };
                 var chartDataSemanas = {
@@ -101,7 +127,7 @@
                     },
                     "series": [// Insert your series data here.
                         {"values": [15, 12, 17, 19, 12, 13, 16]}
-
+                        
                     ]
                 };
                 zingchart.render({// Render Method[3]
@@ -123,14 +149,9 @@
                     width: "80%"
                 });
                 
-                zingchart.render({
-                id: 'myChart',
-                data: configPie,
-                height: 500,
-                width: 725
+                
             });
-            });
-
+            
         </script>
     </head>
     <body id="wrapper">
@@ -183,7 +204,7 @@
                     <a href="#!" class="brand-logo">CRUE Estadísticas </a>
                     <ul class="right hide-on-med-and-down">
                         <li><a class="waves-effect waves-light"><i class="material-icons left">notifications</i>Pedidos<span></span></a></li>
-                        <li><a class="waves-effect waves-light"><i class="material-icons left">person</i>Admin Crue</a></li>
+                        <li><a class="dropdown-button waves-effect waves-light" data-activates='dropdown1'><i class="material-icons left">person</i>Admin Crue</a></li>
                         <li><a id="button"  href="#" data-activates="slide-out" class="button-collapse"><i class="material-icons">reorder</i>
                             </a></li>
 
@@ -195,6 +216,10 @@
         <div id='myChart'>
             <a class="zc-ref" href="https://www.zingchart.com/">Charts by ZingChart</a>
         </div>
+
+        <ul id='dropdown1' class='dropdown-content'>
+            <li><a href="index.html">Cerrar Sesion</a></li>
+        </ul>
 
         <ul class="collapsible" data-collapsible="expandable">
             <li>

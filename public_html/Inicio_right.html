@@ -183,9 +183,17 @@
                     edge: 'right', // Choose the horizontal origin
                     closeOnClick: true, // Closes side-nav on <a> clicks, useful for Angular/Meteor
                     draggable: true // Choose whether you can drag to open on touch screens
-                }
-                );
-
+                });
+$('.dropdown-button').dropdown({
+                    inDuration: 300,
+                    outDuration: 225,
+                    constrainWidth: false, // Does not change width of dropdown to that of the activator
+                    hover: true, // Activate on hover
+                    gutter: 0, // Spacing from edge
+                    belowOrigin: false, // Displays dropdown below the button
+                    alignment: 'left', // Displays dropdown with edge aligned to the left of button
+                    stopPropagation: false // Stops event propagation
+                });
 
             });
 
@@ -235,14 +243,16 @@
 
                     <ul class="right hide-on-med-and-down">
                         <li><a class="waves-effect waves-light"><i class="material-icons left">notifications</i>Pedidos <span id="notifications"></span></a></li>
-                        <li><a class="waves-effect waves-light"><i class="material-icons left">person</i>Admin Crue</a></li>
+                        <li><a class="dropdown-button waves-effect waves-light" data-activates='dropdown1'><i class="material-icons left">person</i>Admin Crue</a></li>
                         <li><a id="button"  href="#" data-activates="slide-out" class="button-collapse"><i class="material-icons">reorder</i></a></li>
                     </ul>
                 </div>
             </nav>
         </div> 
         <!--Fin de la parte Grafica principal-->
-       
+       <ul id='dropdown1' class='dropdown-content'>
+            <li><a href="index.html">Cerrar Sesion</a></li>
+        </ul>
         <h4>Seguimiento a Ambulancias</h4>
         <div  id="maps" class="card-panel z-depth-2">
             <div id="googleMap"></div>

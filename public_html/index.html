@@ -24,29 +24,36 @@
         <script>
             var usuario, entidad, password;
             function iniciarSesion() {
-
-                if ($("#radioUsuarioCRUE").attr('checked') === "checked") {
+                
+                var radioValue = $('input[name=group1]:checked', '#myForm').val();
+                console.log(radioValue);
+                if (radioValue  == 1) {
 
                     console.log("primer if");
                     usuario = $("#icon_prefix").val();
                     password = $("#icon_password").val();
                     if ((usuario === "odvega") & (password === "12345678")) {
                         window.location.href = "Inicio_right.html";
+                    }else{
+                        alert("Contraseña incorrecta.");
                     }
-                } else if ($("#radioUsuarioClinica").attr('checked') === "checked") {
+                } else if (radioValue == 2) {
                     
-                    console.log("nombreClinica");
-                    var nombreClinica = $("#selectClinicas option:selected").text();
+                    password = $("#icon_password").val();
+                    if (password === "12345678") {
+                        
+                        var nombreClinica = $("#selectClinicas option:selected").text();
+                    sessionStorage.myvar = nombreClinica;
                     console.log(nombreClinica);
+                    window.location.href = "ClinicaWeb.html";
+                    }else{
+                        alert("Contraseña incorrecta.");
+                    }
+                    
+                    
                 }
             }
-            
-            function mostrarEnConsola(){
-                
-                console.log("nombreClinica");
-                    var nombreClinica = $("#selectClinicas option:selected").text();
-                    console.log(nombreClinica);
-            }
+                       
             //desplegar lista clinicas
             function  mostrarListaClinicas() {
                 
@@ -80,11 +87,11 @@
                     <div class="card-panel z-depth-5">
                         <h4 class="center">Bienvenido</h4>	 
                         <div class="row">
-                            <form class="col s12 m12">
+                            <form id="myForm" class="col s12 m12">
                                 <div class="row">
                                     <!-- Lista Clinicas -->
                                     <div class="input-field col s12 m12" id="clinicas">
-                                        <select id="selectClinicas" onchange="mostrarEnConsola()">
+                                        <select id="selectClinicas">
                                             <option value="" disabled selected>Clinicas</option>
                                             <option value="1">Clinica Laura Daniela</option>
                                             <option value="2">Clinica Cesar</option>
@@ -115,11 +122,11 @@
                                     </div>
 
                                     <p>
-                                        <input class="with-gap" name="group1" type="radio" id="radioUsuarioCRUE" onclick="mostrarUsiario()"/>
+                                        <input class="with-gap" name="group1" type="radio" id="radioUsuarioCRUE" value="1" onclick="mostrarUsiario()"/>
                                         <label for="radioUsuarioCRUE">Usuario CRUE</label>
                                     </p>
                                     <p>
-                                        <input class="with-gap" name="group1" type="radio" id="radioUsuarioClinica" onclick="mostrarListaClinicas()"/>
+                                        <input class="with-gap" name="group1" type="radio" id="radioUsuarioClinica" value="2" onclick="mostrarListaClinicas()"/>
                                         <label for="radioUsuarioClinica">Centro Hospitalario</label>
                                     </p>
                                 </div>
@@ -130,7 +137,6 @@
                             <i class="fa fa-sign-in right"></i>
                         </button>
                     </div><!--card-->
-
                 </div><!--col-->
             </div><!--row-->
         </div><!--conatiner-->
