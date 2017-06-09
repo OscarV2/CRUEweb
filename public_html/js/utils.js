@@ -87,6 +87,68 @@ function vaciar(id) {
     $('#' + id).empty();
 }
 
+/*  Funciones estadisticas  */
+
+var configPie = {
+ 	type: "pie", 
+ 	backgroundColor: "#FFFFFF",
+ 	plot: {
+ 	  borderColor: "#FFFFFF",
+ 	  borderWidth: 2,
+ 	  // slice: 90,
+ 	  valueBox: {
+ 	    placement: 'out',
+ 	    text: '%t\n%npv%',
+ 	    fontFamily: "Open Sans"
+ 	  },
+ 	  tooltip:{
+ 	    fontSize: '18',
+ 	    fontFamily: "Open Sans",
+ 	    padding: "5 10",
+ 	    text: "%npv%"
+ 	  },
+ 	  animation:{
+      effect: 2, 
+      method: 5,
+      speed: 500,
+      sequence: 1
+    }
+ 	},
+ 	title: {
+ 	  fontColor: "#9C27B0",
+ 	  text: 'Tipos de emergencia',
+ 	  align: "center",
+ 	  offsetX: 10,
+ 	  fontSize: 25
+ 	},
+ 	plotarea: {
+ 	  margin: "20 0 0 0"  
+ 	},
+	series : [
+		{
+			values : [11.38],
+			text: "Cardiorespiratorio",
+		  backgroundColor: '#50ADF5',
+		},
+		{
+		  values: [56.94],
+		  text: "Accidente de transito",
+		  backgroundColor: '#FF7965'
+		},
+		{
+		  values: [14.52],
+		  text: 'Quemaduras',
+		  backgroundColor: '#FFCB45'
+		},
+		{
+		  text: 'Otro',
+		  values: [7.48],
+		  backgroundColor: '#6FB07F'
+		}
+	]
+};
+
+
 
 
 

@@ -58,7 +58,7 @@
                 map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
             }
 
-// Initialize Firebase
+            // Initialize Firebase
             firebase.initializeApp(config);
 
             var ambulancias = firebase.database().ref("Ambulancias");
@@ -196,9 +196,9 @@
         <ul id="slide-out" class="side-nav collection">
             <li><div class="userView">
                     <div class="background">
-                        <img id="fondo" alt="myavatar" src="imag/fondo1.jpg">
+                        <img id="fondo" alt="myavatar" src="imag/CRUE.png">
                     </div>
-                    <a href="#"><img alt="" class="circle" src="imag/myavatar.png"></a>
+                    <a href="#"><img alt="" class="circle" src="imag/medico.jpg"></a>
                     <a href="#"><span class="white-text name">Oscar Vega</span></a>
                     <a href="#"><span class="white-text email">ing.odvega@gmail.com</span></a>
                 </div></li>
@@ -231,7 +231,7 @@
         <div class="navbar-fixed">
             <nav>
                 <div class="nav-wrapper">
-                    <a href="#!" class="brand-logo">CRUE Home</a>
+                    <a href="#!" class="brand-logo">Inicio</a>
 
                     <ul class="right hide-on-med-and-down">
                         <li><a class="waves-effect waves-light"><i class="material-icons left">notifications</i>Pedidos <span id="notifications"></span></a></li>
@@ -242,6 +242,7 @@
             </nav>
         </div> 
         <!--Fin de la parte Grafica principal-->
+       
         <h4>Seguimiento a Ambulancias</h4>
         <div  id="maps" class="card-panel z-depth-2">
             <div id="googleMap"></div>

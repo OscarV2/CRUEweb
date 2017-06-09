@@ -15,7 +15,6 @@
         <link rel="stylesheet" href="css/chartist.min.css">
         <link href="https://fonts.googleapis.com/css?family=Alegreya" rel="stylesheet">
 
-
         <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAL8fCskYf-G2CQMljQ-GGaLrBa352EtVs" type="text/javascript"></script>
         <!-- Custom Fonts -->
         <!--link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"-->
@@ -23,9 +22,27 @@
         <script src="js/jquery.js"></script>
         <script src="js/materialize.js"></script>
         <script src="js/zingchart.min.js"></script>
+        <script src="js/utils.js"></script>
 
+        <script> zingchart.MODULESDIR = "https://cdn.zingchart.com/modules/";
+            ZC.LICENSE = ["569d52cefae586f634c54f86dc99e6a9", "ee6b7db5b51705a13dc2339db3edaf6d"];</script>
         <script>
+
+            firebase.initializeApp(config);
+
+            var pedidos = firebase.database().ref("Pedidos");
+            pedidos.once('value').then(function (snapshot) {
+                snapshot.forEach(
+                        function (childSnapshot) {
+
+                        }
+                );
+            });
+
+           
+
             
+
             $(document).ready(function () {
                 $('.button-collapse').sideNav({
                     menuWidth: 300, // Default is 240
@@ -33,20 +50,9 @@
                     closeOnClick: true, // Closes side-nav on <a> clicks, useful for Angular/Meteor
                     draggable: true // Choose whether you can drag to open on touch screens
                 }
-                         
                 );
-        
-      
-    $('.collapsible').collapsible();
-        
-        
-                var config = {
-                    apiKey: "AIzaSyAL8fCskYf-G2CQMljQ-GGaLrBa352EtVs",
-                    authDomain: "mi-ambulancia.firebaseapp.com",
-                    databaseURL: "https://mi-ambulancia.firebaseio.com",
-                    storageBucket: "mi-ambulancia.appspot.com"
-                };
-                firebase.initializeApp(config);
+
+                $('.collapsible').collapsible();
 
                 var ambulancias = firebase.database().ref("Ambulancias");
                 var pedidos = firebase.database().ref("Pedidos");
@@ -55,14 +61,14 @@
                     "title": {
                         "text": "Estadisticas por mes"
                     },
-                    "plot":{
-                        "styles":["red","#ff6666","#ff99cc","#cc99ff","#6699ff","blue","#9988fc"]
+                    "plot": {
+                        "styles": ["red", "#ff6666", "#ff99cc", "#cc99ff", "#6699ff", "blue", "#9988fc"]
                     },
-                    "scale-x":{
-                        "labels":["Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre"]
+                    "scale-x": {
+                        "labels": ["Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre"]
                     },
                     "series": [// Insert your series data here.
-                        {"values": [35, 42, 67, 89,32,23, 76]}
+                        {"values": [35, 42, 67, 89, 32, 23, 76]}
 
                     ]
                 };
@@ -71,14 +77,14 @@
                     "title": {
                         "text": "Ultimos 7 días"
                     },
-                    "plot":{
-                        "styles":["red","#ff6666","#ff99cc","#cc99ff","#6699ff","blue","#9988fc"]
+                    "plot": {
+                        "styles": ["red", "#ff6666", "#ff99cc", "#cc99ff", "#6699ff", "blue", "#9988fc"]
                     },
-                    "scale-x":{
-                        "labels":["Domingo","Lunes","Martes","Miercoles","Jueves","Viernes","Sabado"]
+                    "scale-x": {
+                        "labels": ["Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"]
                     },
                     "series": [// Insert your series data here.
-                        {"values": [5, 2, 7, 5,2,3, 6]}
+                        {"values": [5, 2, 7, 5, 2, 3, 6]}
 
                     ]
                 };
@@ -87,14 +93,14 @@
                     "title": {
                         "text": "Estadisticas por Semanas"
                     },
-                    "plot":{
-                        "styles":["red","#ff6666","#ff99cc","#cc99ff","#6699ff","blue","#9988fc"]
+                    "plot": {
+                        "styles": ["red", "#ff6666", "#ff99cc", "#cc99ff", "#6699ff", "blue", "#9988fc"]
                     },
-                    "scale-x":{
-                        "labels":["Sem1","Sem2","Sem3","Sem4","Sem5","Sem6","Sem7"]
+                    "scale-x": {
+                        "labels": ["Sem1", "Sem2", "Sem3", "Sem4", "Sem5", "Sem6", "Sem7"]
                     },
                     "series": [// Insert your series data here.
-                        {"values": [15, 12, 17, 19,12,13, 16]}
+                        {"values": [15, 12, 17, 19, 12, 13, 16]}
 
                     ]
                 };
@@ -116,8 +122,14 @@
                     height: 400,
                     width: "80%"
                 });
+                
+                zingchart.render({
+                id: 'myChart',
+                data: configPie,
+                height: 500,
+                width: 725
             });
-
+            });
 
         </script>
     </head>
@@ -126,9 +138,9 @@
         <ul id="slide-out" class="side-nav collection">
             <li><div class="userView">
                     <div class="background">
-                        <img id="fondo" alt="myavatar" src="imag/fondo1.jpg">
+                        <img id="fondo" alt="myavatar" src="imag/CRUE.png">
                     </div>
-                    <a href="#"><img alt="" class="circle" src="imag/myavatar.png"></a>
+                    <a href="#"><img alt="" class="circle" src="imag/medico.jpg"></a>
                     <a href="#"><span class="white-text name">Oscar Vega</span></a>
                     <a href="#"><span class="white-text email">ing.odvega@gmail.com</span></a>
                 </div></li>
@@ -179,20 +191,24 @@
                 </div>
             </nav>
         </div> 
-          
+
+        <div id='myChart'>
+            <a class="zc-ref" href="https://www.zingchart.com/">Charts by ZingChart</a>
+        </div>
+
         <ul class="collapsible" data-collapsible="expandable">
             <li>
                 <div class="collapsible-header"><img alt="" src="icons/icon_estadistica.ico">Ultimos 7 meses</div>
-      <div class="collapsible-body"><p id="chartDiv"></p></div>
-    </li>   
-    <li>
+                <div class="collapsible-body"><p id="chartDiv"></p></div>
+            </li>   
+            <li>
                 <div class="collapsible-header"><img alt="" src="icons/icon_estadistica.ico">Ultimas 7 semanas</div>
                 <div class="collapsible-body"><p id="chartSemanas" ></p></div>
-    </li>   
-    <li>
+            </li>   
+            <li>
                 <div class="collapsible-header"><img alt="" src="icons/icon_estadistica.ico">Ultimos 7 dias</div>
                 <div class="collapsible-body"><p id="chartDias"></p></div>
-    </li>   
+            </li>   
         </ul>
 
         <footer>

@@ -19,7 +19,7 @@
         <script src="js/utils.js"></script>
         <script src="js/materialize.js"></script>
 
-        <script>          
+        <script>
             firebase.initializeApp(config);
             var nombre, observaciones, sexo, identificacion, edad, clinica;
             var calification;
@@ -27,29 +27,34 @@
             var registros = firebase.database().ref("RegistrosAmbulancias");
             var cont = 1, fecha1, fecha2, fecha3, fecha4;
             var totalTraslado, tiempoReaccion, tiempoRespuesta, tiempoTotal;
-            registros.on('child_added', function (datasnapshot) {
-                var numHijos = datasnapshot.child('Pedidos').numChildren();
-                $("#titulo_card" + cont).append(datasnapshot.child('nombres').val() + '<br>' + datasnapshot.child('apellidos').val());
+            var paramedicos = [];
+            //Cargar paramedicos
+            registros.once('value').then(function (datasnapshot) {
+                
+                datasnapshot.forEach(
+                        function (childSnapshot) {
+                            
+                            paramedicos.push(childSnapshot);
+                            console.log("paramdico added");
+                        });
+                fillCards()
+                
+                /*var numHijos = datasnapshot.child('Pedidos').numChildren();
+                $("#titulo_card" + cont).append(datasnapshot.child('nombres').val() + '<br>' + 
+                datasnapshot.child('apellidos').val());
                 $("#cedula" + cont).append(datasnapshot.child('cedula').val());
                 $("#correo" + cont).append(datasnapshot.child('correo').val());
                 $("#link" + cont).append("Servicios: " + numHijos);
-                cont++;
+                cont++;*/
             });
-
-            $(document).ready(function () {
-                $('.button-collapse').sideNav({
-                    menuWidth: 300, // Default is 240
-                    edge: 'right', // Choose the horizontal origin
-                    closeOnClick: true, // Closes side-nav on <a> clicks, useful for Angular/Meteor
-                    draggable: true // Choose whether you can drag to open on touch screens
-                }
-                );
-                $('.modal').modal();
-                $('div > a').click(function () {
-
-                    var id_enlace = event.target.id;
-                    var id_cedula = $("#cedula" + id_enlace.substr(4)).html();
-                    var cedulaParamedico = id_cedula.substr(8);
+            
+            function hola(){
+                
+                console.log("click en cedula");
+                
+                var id_enlace = event.target.id;
+                var id_cedula = $("#cedula" + id_enlace.substr(4)).html();
+                var cedulaParamedico = id_cedula.substr(8);
 
                     registros.child(cedulaParamedico).child('Pedidos').once('value').then(function (snapshot) {
                         snapshot.forEach(
@@ -65,12 +70,70 @@
                                     });
                                 }
                         );
-
-                        
                     });
 
+            }
+            function fillCards(){
+                console.log(paramedicos.length);
+                  
+            for(i = 0; i < paramedicos.length; i += 3){  
+                
+                //Agregar container
+                $("#sectionParamedicos").append('<div class="container" id="cardContainer'+ i + '"></div>');  
+                
+               for(j = i; j < (i+3); j++){
+                   
+                   if (paramedicos[j] !== undefined) {
+                       $("#cardContainer" + i).append(llenarCards(j));
+}
+                   
+               }                         
+            }                
+            }
+           
+            function llenarCards(j) {
+                
+                console.log(j);
+                var nombrePm =   paramedicos[j].child('nombres').val();
+                var cedulaPm =   paramedicos[j].child('cedula').val();
+                var numPedidos = paramedicos[j].child('Pedidos').numChildren();
+                var correoPm =   paramedicos[j].child('correo').val();
+                var apellidoPm = paramedicos[j].child('apellidos').val();
+                
+                var cadenaParamedico;
+                cadenaParamedico = '<div class="row valign-wrapper"><div class="col  valign">' +
+                        '<div class="card"><div class="card-image">' +                                                                       
+                        '<img alt="" src="imag/paramedico1.jpg">' +                        
+                        '<span id="titulo_card' + j + '" class="card-title">' + nombrePm +  '<br>'+
+                        apellidoPm + '</span>' +
+                            '</div>' + '<div class="card-content">' +
+                            '<p id="cedula' + j + '">Cedula: '+ cedulaPm +'</p>' +
+                            '<p id="correo' + j + '">Correo: '+ correoPm +'</p>' +   
+                                                                                
+                            '</div><div class="card-action">' +
+                            
+                                '<a onclick="hola()" id="link' + j + '">Servicios: '   + numPedidos + '</a>' +
+                                
+                            '</div></div></div></div>'
+                       ;
+                
+                return cadenaParamedico;
+}
+            $(document).ready(function () {
+                $('.button-collapse').sideNav({
+                    menuWidth: 300, // Default is 240
+                    edge: 'right', // Choose the horizontal origin
+                    closeOnClick: true, // Closes side-nav on <a> clicks, useful for Angular/Meteor
+                    draggable: true // Choose whether you can drag to open on touch screens
                 });
-
+                $('.modal').modal();
+                $('div > a').click(function () {
+                    
+                    
+                    
+                });
+                
+       //         fillCards();
             });
 
             function volver() {
@@ -163,8 +226,9 @@
                     $('#modalCuerpo').append('<b>Atendido en : </b>' + clinica + "<br>");
                     $('#modalCuerpo').append('<b>Calificación : </b>' + calification + "<br>");
 
-                    $('#modalCuerpo').append('<b>Tiempo reaccion ambulancia : </b>' + tiempoRespuesta[0] + ' min' + ' ' + tiempoRespuesta[1] + ' segundos' + "<br>");
                     $('#modalCuerpo').append('<b>Tiempo respuesta ambulancia : </b>' + tiempoReaccion[0] + ' min' + ' ' + tiempoReaccion[1] + ' segundos' + "<br>");
+                    $('#modalCuerpo').append('<b>Tiempo reaccion ambulancia : </b>' + tiempoRespuesta[0] + ' min' + ' ' + tiempoRespuesta[1] + ' segundos' + "<br>");
+
                     $('#modalCuerpo').append('<b>Total traslado : </b>' + totalTraslado[0] + ' min' + ' ' + totalTraslado[1] + ' segundos' + "<br>");
                     $('#modalCuerpo').append('<b>Total tiempo servicio : </b>' + tiempoTotal[0] + ' min' + ' ' + tiempoTotal[1] + ' segundos' + "<br>");
 
@@ -182,7 +246,7 @@
                     <div class="background">
                         <img id="fondo" alt="myavatar" src="imag/CRUE.png">
                     </div>
-                    <a href="#"><img alt="" class="circle" src="imag/myavatar.png"></a>
+                    <a href="#"><img alt="" class="circle" src="imag/medico.jpg"></a>
                     <a href="#"><span class="white-text name">Oscar Vega</span></a>
                     <a href="#"><span class="white-text email">ing.odvega@gmail.com</span></a>
                 </div></li>
@@ -191,9 +255,7 @@
                     <img alt="Reportes" src="icons/icon_home.png" class="circle">
                     <span class="title">Inicio</span>    
                 </a>
-
             </li>
-
             <li >
                 <a href="estadisticas.html" class="waves-effect waves-light collection-item avatar">
                     <img alt="Reportes" src="icons/icon_estadistica.ico" class="circle">
@@ -207,10 +269,7 @@
                     <span class="title">Consultas</span>    
                 </a>
             </li>
-
-
             <li><div class="divider"></div></li>
-
         </ul>
 
         <div class="navbar-fixed">
@@ -227,8 +286,10 @@
                 </div>
             </nav>
         </div> 
+        
         <section id="sectionParamedicos">
             <h2 id="tituloConsultas">Paramedicos registrados</h2>
+            <!--
             <div class="container">
                 <div class="row valign-wrapper">
                     <div class="col  valign">
@@ -262,7 +323,6 @@
                             <div class="card-action">
                                 <a id="link1"></a>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -284,6 +344,7 @@
                     </div>
                 </div>
             </div> 
+            -->
         </section>
 
         <section id="tablaServicios" hidden>

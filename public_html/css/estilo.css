@@ -4,6 +4,19 @@
     
 }
 
+.zc-ref {
+  display: none;
+  
+}
+
+#myChart{
+    
+  margin-left: auto;
+  padding-right: 300px;
+  padding-left: 300px;
+  text-align: center;
+}
+
  #btnVolver {
     text-align: center;   
     margin: 0 auto;
@@ -23,6 +36,8 @@
 .container .row {
   margin: 0 auto;
 }
+
+
 
 #fondo{
     width: 300px;
